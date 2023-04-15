@@ -4,7 +4,7 @@ from panvariant.workflow.mapping import mapping
 from panvariant.workflow.cds_extract import CDSExtract
 from panvariant.workflow.convert import convert_cds_files_for_mafft
 from panvariant.workflow.multi_alignment import mafft_alignment
-from panvariant.workflow.variant_caller import variant_caller_for_single_file
+from panvariant.workflow.variant_caller import variant_caller
 
 
 def get_sample_set(in_dir):
@@ -97,8 +97,18 @@ def pipeline(args):
         mafft_alignment(converted_cds_dir, out_mafft_dir, thread)
 
     Msg.info("Step5: Variant calling")
-    for fn in listdir(out_mafft_dir):
-        variant_caller_for_single_file(path.join(out_mafft_dir, fn))
-        break
+    out_var_dir = path.join(getcwd(), "05.Variant")
+    is_finished = True
+    if not path.exists(out_var_dir):
+        makedirs(out_var_dir)
+        is_finished = False
+    else:
+        if not listdir(out_var_dir):
+            is_finished = False
+    if is_finished:
+        Msg.info("Variant results found, skipping...")
+    else:
+        variant_caller(out_mafft_dir, out_var_dir, thread)
 
+    Msg.info("All done.")
     chdir(cur_dir)

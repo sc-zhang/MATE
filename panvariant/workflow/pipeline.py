@@ -35,6 +35,8 @@ def pipeline(args):
         makedirs(gmap_out_gff3_dir)
         is_finished = False
     else:
+        if not listdir(gmap_out_gff3_dir):
+            is_finished = False
         for fn in listdir(gmap_out_gff3_dir):
             if not fn.endswith('.gff3'):
                 continue
@@ -53,10 +55,13 @@ def pipeline(args):
         makedirs(extract_cds_dir)
         is_finished = False
     else:
+        if not listdir(extract_cds_dir):
+            is_finished = False
+        cds_set = set()
         for fn in listdir(extract_cds_dir):
-            if fn.replace('.cds', '') not in sample_set:
-                is_finished = False
-                break
+            cds_set.add(fn.replace('.cds', ''))
+        if cds_set != sample_set:
+            is_finished = False
     if is_finished:
         Msg.info("CDS are extracted, skipping...")
     else:
@@ -69,6 +74,9 @@ def pipeline(args):
     if not path.exists(converted_cds_dir):
         makedirs(converted_cds_dir)
         is_finished = False
+    else:
+        if not listdir(converted_cds_dir):
+            is_finished = False
     if is_finished:
         Msg.info("CDS are converted, skipping...")
     else:
@@ -80,13 +88,16 @@ def pipeline(args):
     if not path.exists(out_mafft_dir):
         makedirs(out_mafft_dir)
         is_finished = False
+    else:
+        if not listdir(out_mafft_dir):
+            is_finished = False
     if is_finished:
         Msg.info("MAFFT results found, skipping...")
     else:
         mafft_alignment(converted_cds_dir, out_mafft_dir, thread)
 
     Msg.info("Step5: Variant calling")
-    for fn in out_mafft_dir:
+    for fn in listdir(out_mafft_dir):
         variant_caller_for_single_file(path.join(out_mafft_dir, fn))
         break
 

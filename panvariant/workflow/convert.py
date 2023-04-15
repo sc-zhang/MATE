@@ -1,4 +1,4 @@
-from os import path
+from os import path, listdir
 from panvariant.io.message import Message as Msg
 from panvariant.io.file_operate import FastaIO
 
@@ -23,14 +23,16 @@ from panvariant.io.file_operate import FastaIO
 def convert_cds_files_for_mafft(cds_dir, split_dir):
     Msg.info("Loading cds files")
     cds_db = {}
-    for fn in cds_dir:
+    for fn in listdir(cds_dir):
         Msg.info("\tLoading %s" % fn)
+        sample_id = fn.replace('.cds', '')
         cds_file = path.join(cds_dir, fn)
         fasta_io = FastaIO(cds_file)
         fasta_io.read_fasta()
         for gid in fasta_io.fasta_db:
             if gid not in cds_db:
-                cds_db[gid] = {fn: fasta_io.fasta_db[gid]}
+                cds_db[gid] = {}
+            cds_db[gid][sample_id] = fasta_io.fasta_db[gid]
     Msg.info("Loading finished")
 
     Msg.info("Writing split fasta files")
@@ -38,6 +40,6 @@ def convert_cds_files_for_mafft(cds_dir, split_dir):
         split_fn = path.join(split_dir, gid+'.fa')
         Msg.info("\tWriting %s" % gid)
         with open(split_fn, 'w') as fout:
-            for fn in cds_db[gid]:
-                fout.write(">%s\n%s\n" % (fn, cds_db[gid][fn]))
+            for sample_id in cds_db[gid]:
+                fout.write(">%s\n%s\n" % (sample_id, cds_db[gid][sample_id]))
     Msg.info("Writing Finished")

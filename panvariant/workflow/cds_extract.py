@@ -23,7 +23,7 @@ class CDSExtract:
         return rev_seq
 
     def __extract_cds(self, in_gff3, in_fa, out_cds_file):
-        Msg.info("\tLoading genome % in_fa" % in_fa)
+        Msg.info("\tLoading genome %s" % in_fa)
         fasta_io = FastaIO(in_fa)
         fasta_io.read_fasta()
 
@@ -61,6 +61,7 @@ class CDSExtract:
                 for gid in sorted(region_db):
                     chrn = region_db[gid]['chrn']
                     if region_db[gid]['direct'] == '+':
+                        cds = ""
                         for sp, ep in region_db[gid]['cds']:
                             cds += fasta_io.fasta_db[chrn][sp - 1: ep]
                         fout.write('>%s\n%s\n' % (gid, cds))

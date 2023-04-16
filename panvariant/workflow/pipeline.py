@@ -19,6 +19,7 @@ def pipeline(args):
     genome_dir = path.abspath(args.genome)
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
+    pheno = args.pheno
     thread = args.thread
 
     cur_dir = path.abspath(getcwd())
@@ -110,5 +111,6 @@ def pipeline(args):
     else:
         variant_caller(out_mafft_dir, out_var_dir, thread)
 
-    Msg.info("All done.")
+    Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)
+    Msg.info("All done.")

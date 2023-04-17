@@ -5,6 +5,7 @@ from panvariant.workflow.cds_extract import CDSExtract
 from panvariant.workflow.convert import convert_cds_files_for_mafft
 from panvariant.workflow.multi_alignment import mafft_alignment
 from panvariant.workflow.variant_caller import variant_caller
+from panvariant.workflow.variant_classifier import variant_classifier
 
 
 def get_sample_set(in_dir):
@@ -111,6 +112,19 @@ def pipeline(args):
     else:
         variant_caller(out_mafft_dir, out_var_dir, thread)
 
+    Msg.info("Step6: Variant classifying")
+    out_cla_dir = path.join(getcwd(), "06.ClassifiedVariants")
+    is_finished = True
+    if not path.exists(out_cla_dir):
+        makedirs(out_cla_dir)
+        is_finished = False
+    else:
+        if not listdir(out_cla_dir):
+            is_finished = False
+    if is_finished:
+        Msg.info("Variant classified result found, skipping...")
+    else:
+        variant_classifier(out_var_dir, out_cla_dir, thread)
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)
     Msg.info("All done.")

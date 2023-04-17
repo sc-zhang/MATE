@@ -1,4 +1,4 @@
-from panvariant.io.file_operate import FastaIO
+from panvariant.io.file_operate import FastaIO, VariantIO
 from panvariant.io.message import Message as Msg
 from panvariant.operate.consensus_seq import get_consensus_seq
 from pathos.multiprocessing import Pool
@@ -15,19 +15,20 @@ def __variant_caller_for_single_file(aln_file, var_file):
     seq_len = len(consensus_seq)
 
     Msg.info("\tDropping low quality sequences")
-    # drop samples with missing rate larger than 30%
+    # drop samples with missing rate larger than 70%
     aln_db = {}
     for smp in fasta_io.fasta_db:
         cnt = 0
         for i in range(seq_len):
             if fasta_io.fasta_db[smp][i] == '-':
                 cnt += 1
-        if cnt <= seq_len*.3:
+        if cnt <= seq_len*.7:
             aln_db[smp] = fasta_io.fasta_db[smp]
 
     # if only single sample retained, return.
     retain_sample_cnt = len(aln_db)
     if retain_sample_cnt <= 1:
+        Msg.info("\tToo few samples, Abort")
         return
 
     Msg.info("\tChecking each site")
@@ -48,13 +49,8 @@ def __variant_caller_for_single_file(aln_file, var_file):
             full_info.append([i, ref, alt, info])
 
     Msg.info("\tWriting results")
-    with open(var_file, 'w') as fout:
-        fout.write("#POS\tREF\tALT\t%s\n" % ('\t'.join(sorted(aln_db))))
-        for info in full_info:
-            pos, ref, alt, geno = info
-            alt_list = [_ for _ in sorted(alt, key=lambda x: alt[x])]
-            fout.write("%d\t%s\t%s\t%s\n" % (pos, ref, ','.join(alt_list), '\t'.join(map(str, geno))))
-
+    var_io = VariantIO()
+    var_io.write_file(var_file, sorted(aln_db.keys()), full_info)
     Msg.info("\tFinished")
 
 

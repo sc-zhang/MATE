@@ -33,8 +33,7 @@ class FastaIO:
 
 
 class VariantIO:
-    def __init__(self, variant_file):
-        self.__variant_file = variant_file
+    def __init__(self):
         self.samples = None
         # self.variants is 2-D list, like:
         # [[pos, ref, alt(dict), [0, 1, 1, 0, ...](sample genotype)
@@ -42,8 +41,8 @@ class VariantIO:
         # ]
         self.variants = []
 
-    def read_var(self):
-        with open(self.__variant_file, 'r') as fin:
+    def read_var(self, variant_file):
+        with open(variant_file, 'r') as fin:
             for line in fin:
                 data = line.strip().split()
                 if line[0] == '#':
@@ -54,3 +53,15 @@ class VariantIO:
                     alt_sites = data[2].split(',')
                     alt = {_+1: alt_sites[_] for _ in range(len(alt_sites))}
                     self.variants.append([pos, ref, alt, data[3:]])
+
+    @staticmethod
+    def write_file(variant_file, samples, variants, mode='raw'):
+        with open(variant_file, 'w') as fout:
+            fout.write("#POS\tREF\tALT\t%s\n" % ('\t'.join(sorted(samples))))
+            for info in variants:
+                pos, ref, alt, geno = info
+                if mode == 'raw':
+                    alt_list = [_ for _ in sorted(alt, key=lambda x: alt[x])]
+                else:
+                    alt_list = [alt[_] for _ in sorted(alt)]
+                fout.write("%d\t%s\t%s\t%s\n" % (pos, ref, ','.join(alt_list), '\t'.join(map(str, geno))))

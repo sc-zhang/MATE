@@ -1,11 +1,11 @@
 from os import path, makedirs, getcwd, listdir, chdir
 from panvariant.io.message import Message as Msg
-from panvariant.workflow.mapping import mapping
-from panvariant.workflow.cds_extract import CDSExtract
-from panvariant.workflow.convert import convert_cds_files_for_mafft
-from panvariant.workflow.multi_alignment import mafft_alignment
-from panvariant.workflow.variant_caller import variant_caller
-from panvariant.workflow.variant_classifier import variant_classifier
+from panvariant.stages.mapping import mapping
+from panvariant.stages.cds_extract import CDSExtract
+from panvariant.stages.convert import convert_cds_files_for_mafft
+from panvariant.stages.multi_alignment import mafft_alignment
+from panvariant.stages.variant_caller import variant_caller
+from panvariant.stages.variant_classifier import variant_classifier
 
 
 def get_sample_set(in_dir):

@@ -5,6 +5,7 @@
 ### Python Modules
  - pathos
  - outlier-utils
+ - scipy.stats
 
 ## Installation
 ```bash
@@ -27,7 +28,7 @@ options:
   -l PLOIDY, --ploidy PLOIDY
                         Ploidy of genomes, default=2
   -p PHENO, --pheno PHENO
-                        Phenotype values of all genomes
+                        Directory contain phenotypes for association
   -o OUTPUT, --output OUTPUT
                         Output directory
   -t THREAD, --thread THREAD

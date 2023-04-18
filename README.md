@@ -4,7 +4,7 @@
  - MAFFT
 ### Python Modules
  - pathos
- - outlier-utils
+ - outlier_utils
  - scipy.stats
 
 ## Installation

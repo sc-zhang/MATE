@@ -49,11 +49,21 @@ def __variant_classifier_for_single_file(var_file, classified_file):
 def variant_classifier(var_dir, cla_dir, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant classifying")
+
+    res = []
     for fn in listdir(var_dir):
         Msg.info("\tClassifying %s" % fn)
         var_file = path.join(var_dir, fn)
         cla_file = path.join(cla_dir, fn.replace('.var', '.cla'))
-        pool.apply_async(__variant_classifier_for_single_file(var_file, cla_file, ))
+        res.append([fn, pool.apply_async(__variant_classifier_for_single_file(var_file, cla_file, ))])
     pool.close()
     pool.join()
+
+    # If subprocess failed, the error will be caught.
+    for var_fn, r in res:
+        try:
+            r.get()
+        except Exception as e:
+            Msg.warn("\tException caught with {}: {}".format(var_fn, e))
+
     Msg.info("Variant classified")

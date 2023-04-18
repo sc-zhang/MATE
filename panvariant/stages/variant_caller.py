@@ -57,11 +57,21 @@ def __variant_caller_for_single_file(aln_file, var_file):
 def variant_caller(aln_dir, var_dir, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
+
+    res = []
     for fn in listdir(aln_dir):
         Msg.info("\tCalling %s" % fn)
         aln_file = path.join(aln_dir, fn)
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
-        pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, ))
+        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, ))])
     pool.close()
     pool.join()
+
+    # If subprocess failed, the error will be caught.
+    for aln_fn, r in res:
+        try:
+            r.get()
+        except Exception as e:
+            Msg.warn("\tException caught with {}: {}".format(aln_fn, e))
+
     Msg.info("Variant called")

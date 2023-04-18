@@ -76,12 +76,22 @@ class CDSExtract:
     def extract(self):
         Msg.info("Extracting")
         pool = Pool(processes=self.__thread)
+
+        res = []
         for fn in listdir(self.__genome_dir):
             sample_id = '.'.join(fn.split('.')[:-1])
             genome_file = path.join(self.__genome_dir, fn)
             gff3_file = path.join(self.__gmap_out_gff3_dir, "%s.gff3" % sample_id)
             out_cds = path.join(self.__out_cds_dir, "%s.cds" % sample_id)
-            pool.apply_async(self.__extract_cds, (gff3_file, genome_file, out_cds,))
+            res.append([fn, pool.apply_async(self.__extract_cds, (gff3_file, genome_file, out_cds,))])
         pool.close()
         pool.join()
+
+        # If subprocess failed, the error will be caught.
+        for genome_fn, r in res:
+            try:
+                r.get()
+            except Exception as e:
+                Msg.warn("\tException caught with {}: {}".format(genome_fn, e))
+
         Msg.info("Extract finished")

@@ -1,5 +1,5 @@
 from os import popen
-from panvariant.io.message import Message
+from panvariant.io.message import Message as Msg
 
 
 class Runner:
@@ -19,7 +19,7 @@ class Runner:
             self.__res = '\n'.join(res)
             return 1
         except Exception as e:
-            Message.error(repr(e))
+            Msg.error("\tRunning command {} failed: {}".format(self.__cmd, repr(e)))
 
     def get_result(self):
         return self.__res

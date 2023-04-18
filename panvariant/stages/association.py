@@ -91,11 +91,20 @@ def associate_with_pheno(pheno_dir, cla_dir, asc_dir, threads):
     pool = Pool(processes=threads)
     Msg.info("Associating with phenotypes")
 
+    res = []
     for pheno_fn in listdir(pheno_dir):
         Msg.info("\tAssociating with %s" % pheno_fn)
         pheno_file = path.join(pheno_dir, pheno_fn)
         asc_file = path.join(asc_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.asc')
-        pool.apply_async(__associate_with_single_pheno, (pheno_file, cla_dir, asc_file,))
+        res.append([pheno_fn, pool.apply_async(__associate_with_single_pheno, (pheno_file, cla_dir, asc_file,))])
     pool.close()
     pool.join()
+
+    # If subprocess failed, the error will be caught.
+    for pheno_fn, r in res:
+        try:
+            r.get()
+        except Exception as e:
+            Msg.warn("\tException caught with {}: {}".format(pheno_fn, e))
+
     Msg.info("Association finished")

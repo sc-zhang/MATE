@@ -30,7 +30,6 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
         max_pos = 0
         for sample_idx in range(len(var_sites_db[gene]['geno'])):
             best_cnt[sample_idx] = 0
-            plt.plot([0, ref_cds_len_db[gene]], [sample_idx, sample_idx], color='grey', linewidth=1)
             for geno_idx in range(len(var_sites_db[gene]['geno'][sample_idx])):
                 geno = var_sites_db[gene]['geno'][sample_idx][geno_idx]
                 pos = var_sites_db[gene]['pos'][geno_idx]
@@ -38,8 +37,8 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
                 alt = var_sites_db[gene]['alt'][geno_idx]
                 best_geno = var_sites_db[gene]['best_geno'][geno_idx]
 
-                if pos > max_pos:
-                    max_pos = pos
+                if pos+len(ref) > max_pos:
+                    max_pos = pos+len(ref)
                 if pos < min_pos:
                     min_pos = pos
 
@@ -71,22 +70,20 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
                         label=variant_type if variant_type != '-' else "Deletion")
         plt.legend(bbox_to_anchor=(1.01, 0.5), loc="center left", fontsize=20, frameon=False)
 
-        plt.ylim(-.1, len(var_sites_db[gene]['geno'])-.9)
+        left = min_pos - fasta_io.seq_len_db[gene] * .1
+        right = max_pos + fasta_io.seq_len_db[gene] * .1
 
-        pos_range_length = max_pos - min_pos
-        if pos_range_length == 0:
-            left = max_pos-fasta_io.seq_len_db[gene]*.2
-            right = max_pos+fasta_io.seq_len_db[gene]*.2
-        else:
-            left = min_pos-pos_range_length*.2
-            right = max_pos+pos_range_length*.2
-
-        plt.xlim(left, right)
-        # avoid range show in label out of gene range
+        # avoid plot range out of gene range
         left = max(0, left)
         right = min(right, fasta_io.seq_len_db[gene])
+        for sample_idx in range(len(var_sites_db[gene]['geno'])):
+            plt.plot([left, right], [sample_idx, sample_idx], color='grey', linewidth=1, zorder=1)
+
+        plt.xlim(left-10 if left == 0 else left, right+10 if right == fasta_io.seq_len_db[gene] else right)
         plt.xticks([])
-        plt.xlabel("%s (%d~%d:%d)" % (gene, int(left)+1, int(right), fasta_io.seq_len_db[gene]), fontsize=20)
+        plt.xlabel("%s (%d~%d:%d)" % (gene, int(left) + 1, int(right), fasta_io.seq_len_db[gene]), fontsize=20)
+
+        plt.ylim(-.1, len(var_sites_db[gene]['geno'])-.9)
         best_idx = 0
         best_value = 0
         for sample_idx in best_cnt:

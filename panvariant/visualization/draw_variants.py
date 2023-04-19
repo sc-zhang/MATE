@@ -9,7 +9,7 @@ from pathos.multiprocessing import Pool
 mpl.use('Agg')
 
 
-def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
+def __draw_genes_in_association(ref_cds, pheno_name, asc_file, pic_dir):
     if pic_dir and not path.exists(pic_dir):
         makedirs(pic_dir)
     fasta_io = FastaIO(ref_cds)
@@ -22,7 +22,7 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
                         'C': 'darkorange',
                         'G': 'gold'}
     for gene in var_sites_db:
-        Msg.info("\tPlotting %s in %s" % (gene, pic_dir))
+        Msg.info("\tPlotting %s with %s" % (gene, pheno_name))
         plt.figure(figsize=(20, 2*len(var_sites_db[gene]['geno'])), dpi=300)
         best_cnt = {}
         min_pos = fasta_io.seq_len_db[gene]
@@ -69,8 +69,13 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
                         label=variant_type if variant_type != '-' else "Deletion")
         plt.legend(bbox_to_anchor=(1.01, 0.5), loc="center left", fontsize=20, frameon=False)
 
-        left = min_pos - fasta_io.seq_len_db[gene] * .1
-        right = max_pos + fasta_io.seq_len_db[gene] * .1
+        pos_range_length = max_pos - min_pos
+        if pos_range_length == 0 or pos_range_length < fasta_io.seq_len_db[gene]*.1:
+            left = min_pos - fasta_io.seq_len_db[gene] * .1
+            right = max_pos + fasta_io.seq_len_db[gene] * .1
+        else:
+            left = min_pos - pos_range_length * .1
+            right = max_pos + pos_range_length * .1
 
         # avoid plot range out of gene range
         left = max(0, left)
@@ -109,8 +114,9 @@ def draw_variant_sites_in_association(ref_cds, asc_dir, pic_dir, thread):
     res = []
     for fn in listdir(asc_dir):
         asc_file = path.join(asc_dir, fn)
-        pic_sub_dir = path.join(pic_dir, fn.replace('.asc', ''))
-        res.append([fn, pool.apply_async(__draw_genes_in_association, (ref_cds, asc_file, pic_sub_dir,))])
+        pheno_name = fn.replace('.asc', '')
+        pic_sub_dir = path.join(pic_dir, pheno_name)
+        res.append([fn, pool.apply_async(__draw_genes_in_association, (ref_cds, pheno_name, asc_file, pic_sub_dir,))])
     pool.close()
     pool.join()
 

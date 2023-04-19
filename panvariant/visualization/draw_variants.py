@@ -14,7 +14,6 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
         makedirs(pic_dir)
     fasta_io = FastaIO(ref_cds)
     fasta_io.read_fasta()
-    ref_cds_len_db = fasta_io.seq_len_db
     var_sites_db = AssociateIO.read_asc(asc_file)
 
     variant_color_db = {'-': 'crimson',

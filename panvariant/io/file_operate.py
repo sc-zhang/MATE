@@ -2,6 +2,7 @@ class FastaIO:
     def __init__(self, fasta_file):
         self.__fasta_file = fasta_file
         self.fasta_db = {}
+        self.seq_len_db = {}
 
     def read_fasta(self):
         with open(self.__fasta_file, 'r') as fin:
@@ -16,6 +17,9 @@ class FastaIO:
                 else:
                     seq += line.strip().upper()
         self.fasta_db[gid] = seq
+
+        for gid in self.fasta_db:
+            self.seq_len_db[gid] = len(self.fasta_db[gid])
 
     def read_aln(self):
         with open(self.__fasta_file, 'r') as fin:
@@ -106,3 +110,41 @@ class AssociateIO:
                     fout.write("%s\t%d\t%s\t%.2f\t%.2f\t%s\t%s\t%s\t%s\n"
                                % (gene, pos, '\t'.join(full_geno), levene_pvalue, ttest_pvalue,
                                   best_info, sec_best_info, ref, ','.join(alt_list)))
+
+    @staticmethod
+    def read_asc(asc_file):
+        var_db = {}
+        with open(asc_file, 'r') as fin:
+            for line in fin:
+                if line[0] == '#':
+                    continue
+                data = line.strip().split()
+                gid = data[0]
+                pos = int(data[1])
+                ref = data[-2]
+                alt = data[-1].split(',')
+                best_geno = data[-4].split('(')[0]
+                if gid not in var_db:
+                    var_db[gid] = {'pos': [pos], 'geno': [[_] for _ in data[2: -6]], 'ref': [ref], 'alt': [alt],
+                                   'best_geno': [best_geno]}
+                else:
+                    var_db[gid]['pos'].append(pos)
+                    for _ in range(len(data[2:-6])):
+                        geno_idx = _+2
+                        var_db[gid]['geno'][_].append(data[geno_idx])
+                    var_db[gid]['ref'].append(ref)
+                    var_db[gid]['alt'].append(alt)
+                    var_db[gid]['best_geno'].append(best_geno)
+
+        converted_var_db = {}
+        for gid in var_db:
+            converted_var_db[gid] = {'pos': var_db[gid]['pos'], 'geno': [], 'ref': var_db[gid]['ref'],
+                                     'alt': var_db[gid]['alt'], 'best_geno': var_db[gid]['best_geno']}
+            geno_set = set()
+            # drop missing samples
+            for _ in range(len(var_db[gid]['geno'])):
+                if list(set(var_db[gid]['geno'][_])) == ['-']:
+                    continue
+                geno_set.add(tuple(var_db[gid]['geno'][_]))
+            converted_var_db[gid]['geno'] = sorted(geno_set)
+        return converted_var_db

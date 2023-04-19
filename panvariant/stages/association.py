@@ -87,8 +87,8 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file):
     Msg.info("\tFinished")
 
 
-def associate_with_pheno(pheno_dir, cla_dir, asc_dir, threads):
-    pool = Pool(processes=threads)
+def associate_with_pheno(pheno_dir, cla_dir, asc_dir, thread):
+    pool = Pool(processes=thread)
     Msg.info("Associating with phenotypes")
 
     res = []

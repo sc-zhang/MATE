@@ -7,6 +7,7 @@ from panvariant.stages.multi_alignment import mafft_alignment
 from panvariant.stages.variant_caller import variant_caller
 from panvariant.stages.variant_classifier import variant_classifier
 from panvariant.stages.association import associate_with_pheno
+from panvariant.visualization.draw_variants import draw_variant_sites_in_association
 
 
 def get_sample_set(in_dir):
@@ -140,6 +141,21 @@ def pipeline(args):
         Msg.info("Association results found, skipping...")
     else:
         associate_with_pheno(pheno_dir, out_cla_dir, out_asc_dir, thread)
+
+    Msg.info("Step8: Visualizing variants")
+    out_vis_dir = path.join(getcwd(), "08.Visualization")
+    is_finished = True
+    if not path.exists(out_vis_dir):
+        makedirs(out_vis_dir)
+        is_finished = False
+    else:
+        if not listdir(out_vis_dir):
+            is_finished = False
+    if is_finished:
+        Msg.info("Visualization results found, skipping")
+    else:
+        draw_variant_sites_in_association(ref_cds, out_asc_dir, out_vis_dir, thread)
+
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)
     Msg.info("All done.")

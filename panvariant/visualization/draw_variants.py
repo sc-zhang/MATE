@@ -24,7 +24,7 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
                         'C': 'darkorange',
                         'G': 'gold'}
     for gene in var_sites_db:
-        Msg.info("\tPlotting %s" % gene)
+        Msg.info("\tPlotting %s in %s" % (gene, pic_dir))
         plt.figure(figsize=(20, 8), dpi=300)
         best_cnt = {}
         for sample_idx in range(len(var_sites_db[gene]['geno'])):
@@ -69,7 +69,7 @@ def __draw_genes_in_association(ref_cds, asc_file, pic_dir):
             if best_cnt[sample_idx] > best_value:
                 best_value = best_cnt[sample_idx]
                 best_idx = sample_idx
-        plt.text(-20, best_idx, "Best Type", va='center', ha='right', fontsize=15)
+        plt.text(-25, best_idx, "Best Type", va='center', ha='right', fontsize=15)
         plt.title("Alleles of gene %s" % gene, fontsize=25)
         plt.axis('off')
         pic_file = path.join(pic_dir, "%s.pdf" % gene)

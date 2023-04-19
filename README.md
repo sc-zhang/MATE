@@ -1,9 +1,10 @@
 ## Dependencies
 ### Software
+ - Python >= 3.7
  - GMAP
  - MAFFT
 ### Python Modules
- - pathos
+ - pathos==0.3.0
  - outlier_utils
  - scipy.stats
 

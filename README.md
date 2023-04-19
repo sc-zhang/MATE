@@ -1,3 +1,6 @@
+## Introduction
+This software is a tool for identifying variants associate with phenotypes from pan-genome.
+
 ## Dependencies
 ### Software
  - Python >= 3.7

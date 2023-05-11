@@ -46,6 +46,7 @@ options:
 ~/.local/share/fonts and use command below to make cache
 ```bash
 fc-cache -f -v
+rm -rf ~/.cache/matplotlib/
 ```
 
 ## Results

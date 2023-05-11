@@ -27,7 +27,7 @@ def __draw_genes_in_association(cleanup_aln_file, pic_file):
         return
 
     Msg.info("\tPlotting %s" % cleanup_aln_file)
-    fig_height = max(int(seq_len/200.*len(aln_db)/5), 2)
+    fig_height = max(int(seq_len/200.*len(aln_db)/4), 5)
     plt.figure(figsize=(20, fig_height), dpi=100)
     multialign(aln_db, base_per_line=200)
     plt.rcParams['font.sans-serif'] = 'Courier New'

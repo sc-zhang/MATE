@@ -5,7 +5,7 @@ from pathos.multiprocessing import Pool
 from os import listdir, path
 
 
-def __variant_caller_for_single_file(aln_file, var_file):
+def __variant_caller_for_single_file(aln_file, var_file, kmer_length):
     Msg.info("\tLoading %s" % aln_file)
     fasta_io = FastaIO(aln_file)
     fasta_io.read_aln()
@@ -15,6 +15,24 @@ def __variant_caller_for_single_file(aln_file, var_file):
     seq_len = len(consensus_seq)
 
     Msg.info("\tDropping low quality sequences")
+
+    # drop samples with low support kmers
+    support_db = {}
+    for smp in fasta_io.fasta_db:
+        support_db[smp] = set()
+
+    seq_cnt = len(fasta_io.fasta_db)
+    for i in range(seq_len-kmer_length+1):
+        cnt_db = {}
+        for smp in fasta_io.fasta_db:
+            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
+            if kmer not in cnt_db:
+                cnt_db[kmer] = 0
+            cnt_db[kmer] += 1
+        for smp in fasta_io.fasta_db:
+            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
+            support_db[smp].add(round(cnt_db[kmer]*1./seq_cnt, 2))
+
     # drop samples with missing rate larger than 70%
     aln_db = {}
     for smp in fasta_io.fasta_db:
@@ -22,7 +40,7 @@ def __variant_caller_for_single_file(aln_file, var_file):
         for i in range(seq_len):
             if fasta_io.fasta_db[smp][i] == '-':
                 cnt += 1
-        if cnt <= seq_len*.7:
+        if cnt <= seq_len*.7 and min(support_db[smp]) > 0.05:
             aln_db[smp] = fasta_io.fasta_db[smp]
 
     # if only single sample retained, return.
@@ -54,7 +72,7 @@ def __variant_caller_for_single_file(aln_file, var_file):
     Msg.info("\tFinished")
 
 
-def variant_caller(aln_dir, var_dir, thread):
+def variant_caller(aln_dir, var_dir, kmer_length, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
 
@@ -63,7 +81,7 @@ def variant_caller(aln_dir, var_dir, thread):
         Msg.info("\tCalling %s" % fn)
         aln_file = path.join(aln_dir, fn)
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
-        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, ))])
+        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, kmer_length, ))])
     pool.close()
     pool.join()
 

@@ -17,6 +17,7 @@ def pipeline(args):
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
     pheno_dir = path.abspath(args.pheno)
+    kmer_length = args.kmer
     thread = args.thread
 
     cur_dir = path.abspath(getcwd())
@@ -106,7 +107,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Variant results found, skipping...")
     else:
-        variant_caller(out_mafft_dir, out_var_dir, thread)
+        variant_caller(out_mafft_dir, out_var_dir, kmer_length, thread)
 
     Msg.info("Step6: Variant classifying")
     out_cla_dir = path.join(getcwd(), "06.ClassifiedVariants")

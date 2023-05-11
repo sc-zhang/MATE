@@ -22,7 +22,7 @@ source ~/.bash_profile
 
 ## Usage
 ```bash
-usage: panvariant.py [-h] -r REF -g GENOME [-l PLOIDY] -p PHENO -o OUTPUT [-t THREAD]
+usage: panvariant.py [-h] -r REF -g GENOME [-l PLOIDY] -p PHENO [-k KMER] -o OUTPUT [-t THREAD]
 
 options:
   -h, --help            show this help message and exit
@@ -33,6 +33,7 @@ options:
                         Ploidy of genomes, default=2
   -p PHENO, --pheno PHENO
                         Directory contain phenotypes for association
+  -k KMER, --kmer KMER  kmer length for cleanup mafft result, default=5
   -o OUTPUT, --output OUTPUT
                         Output directory
   -t THREAD, --thread THREAD

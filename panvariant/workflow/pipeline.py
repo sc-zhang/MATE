@@ -97,6 +97,7 @@ def pipeline(args):
 
     Msg.info("Step5: Variant calling")
     out_var_dir = path.join(getcwd(), "05.Variant")
+    out_aln_dir = path.join(getcwd(), "05.CleanupAlign")
     is_finished = True
     if not path.exists(out_var_dir):
         makedirs(out_var_dir)
@@ -104,10 +105,16 @@ def pipeline(args):
     else:
         if not listdir(out_var_dir):
             is_finished = False
+    if not path.exists(out_aln_dir):
+        makedirs(out_aln_dir)
+        is_finished = False
+    else:
+        if not listdir(out_aln_dir):
+            is_finished = False
     if is_finished:
         Msg.info("Variant results found, skipping...")
     else:
-        variant_caller(out_mafft_dir, out_var_dir, kmer_length, thread)
+        variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, kmer_length, thread)
 
     Msg.info("Step6: Variant classifying")
     out_cla_dir = path.join(getcwd(), "06.ClassifiedVariants")

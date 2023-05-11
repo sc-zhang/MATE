@@ -71,6 +71,37 @@ class VariantIO:
                 fout.write("%d\t%s\t%s\t%s\n" % (pos, ref, ','.join(alt_list), '\t'.join(map(str, geno))))
 
 
+class AlignIO:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def write_file(aln_file, aln_db):
+        seq_len = 0
+        for gid in aln_db:
+            seq_len = len(aln_db[gid])
+            break
+
+        # remove if all bases at this position is '-'
+        remove_pos = set()
+        for pos in range(seq_len):
+            is_remove = True
+            for gid in aln_db:
+                if aln_db[gid][pos] != '-':
+                    is_remove = False
+                    break
+            if is_remove:
+                remove_pos.add(pos)
+
+        with open(aln_file, 'w') as fout:
+            for gid in sorted(aln_db):
+                fout.write(">%s\n" % gid)
+                for pos in range(seq_len):
+                    if pos not in remove_pos:
+                        fout.write("%s" % aln_db[gid][pos])
+                fout.write("\n")
+
+
 class PhenoIO:
     def __init__(self, pheno_file):
         self.__pheno_file = pheno_file

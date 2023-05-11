@@ -1,11 +1,11 @@
-from panvariant.io.file_operate import FastaIO, VariantIO
+from panvariant.io.file_operate import FastaIO, VariantIO, AlignIO
 from panvariant.io.message import Message as Msg
 from panvariant.base.consensus_seq import get_consensus_seq
 from pathos.multiprocessing import Pool
 from os import listdir, path
 
 
-def __variant_caller_for_single_file(aln_file, var_file, kmer_length):
+def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_length):
     Msg.info("\tLoading %s" % aln_file)
     fasta_io = FastaIO(aln_file)
     fasta_io.read_aln()
@@ -69,10 +69,13 @@ def __variant_caller_for_single_file(aln_file, var_file, kmer_length):
     Msg.info("\tWriting results")
     var_io = VariantIO()
     var_io.write_file(var_file, sorted(aln_db.keys()), full_info)
+
+    aln_io = AlignIO()
+    aln_io.write_file(cleanup_aln_file, aln_db)
     Msg.info("\tFinished")
 
 
-def variant_caller(aln_dir, var_dir, kmer_length, thread):
+def variant_caller(aln_dir, var_dir, cleanup_aln_dir, kmer_length, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
 
@@ -81,7 +84,8 @@ def variant_caller(aln_dir, var_dir, kmer_length, thread):
         Msg.info("\tCalling %s" % fn)
         aln_file = path.join(aln_dir, fn)
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
-        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, kmer_length, ))])
+        cleanup_aln_file = path.join(cleanup_aln_dir, fn)
+        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, cleanup_aln_file, kmer_length, ))])
     pool.close()
     pool.join()
 

@@ -10,6 +10,7 @@ This software is a tool for identifying variants associate with phenotypes from 
  - pathos==0.3.0
  - outlier_utils
  - scipy.stats
+ - bioplotz
 
 ## Installation
 ```bash
@@ -40,7 +41,12 @@ options:
                         Thread number, default=10
 ```
 **Notice** the id of genes in reference cds file must not contain invalid characters that cannot use in path, like '/', 
-'\', '?', et al.
+'\', '?', et al.  
+**Notice** font "Courier New" is required for visualizing, user can copy ttf file of "Courier New" to 
+~/.local/share/fonts and use command below to make cache
+```bash
+fc-cache -f -v
+```
 
 ## Results
 - **07.Association**: asc files in 07.Association contain all significant variants. The significant variants were 

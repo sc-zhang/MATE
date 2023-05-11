@@ -44,7 +44,14 @@ def __draw_genes_in_association(cleanup_aln_dir, asc_file, pic_dir):
         if len(aln_db) <= 1:
             Msg.warn("\tToo less samples, Aborting")
             return
-        highlight_pos = var_sites_db[gene]['pos']
+
+        highlight_pos = []
+        for i in range(len(var_sites_db[gene]['pos'])):
+            pos_start = var_sites_db[gene]['pos'][i]
+            var_len = len(var_sites_db[gene]['ref'][i])
+            for j in range(pos_start, pos_start+var_len):
+                highlight_pos.append(j)
+
         Msg.info("\tPlotting %s" % cleanup_aln_file)
         fig_height = max(int(seq_len/200.*len(aln_db)/4), 5)
         plt.figure(figsize=(20, fig_height), dpi=100)

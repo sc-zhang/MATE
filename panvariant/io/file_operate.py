@@ -38,7 +38,7 @@ class FastaIO:
 
 class VariantIO:
     def __init__(self):
-        self.samples = None
+        self.samples = []
         # self.variants is 2-D list, like:
         # [[pos, ref, alt(dict), [0, 1, 1, 0, ...](sample genotype)
         # ...

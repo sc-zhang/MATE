@@ -14,8 +14,8 @@ def __variant_classifier_for_single_file(var_file, classified_file):
     # ]
     last_pos_range = [-1, -1]
     last_ref = ""
-    last_alt = None
-    last_genotype = None
+    last_alt = {}
+    last_genotype = []
     full_info = []
 
     Msg.info("\tMerging")
@@ -40,7 +40,7 @@ def __variant_classifier_for_single_file(var_file, classified_file):
             last_genotype = cur_genotype
     if last_genotype:
         full_info.append([last_pos_range[0], last_ref, last_alt, last_genotype])
-    var_io.variants = full_info
+
     var_io.write_file(classified_file, var_io.samples, full_info, mode='cla')
 
     Msg.info("\tFinished")

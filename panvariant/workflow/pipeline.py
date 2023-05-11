@@ -1,12 +1,6 @@
 from os import path, makedirs, getcwd, listdir, chdir
 from panvariant.io.message import Message as Msg
-from panvariant.stages.mapping import mapping
-from panvariant.stages.cds_extract import CDSExtract
-from panvariant.stages.convert import convert_cds_files_for_mafft
-from panvariant.stages.multi_alignment import mafft_alignment
-from panvariant.stages.variant_caller import variant_caller
-from panvariant.stages.variant_classifier import variant_classifier
-from panvariant.stages.association import associate_with_pheno
+from panvariant.stages import *
 from panvariant.visualization.draw_variants import draw_variant_sites_in_association
 
 

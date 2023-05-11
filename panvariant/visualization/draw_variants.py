@@ -22,7 +22,7 @@ def __draw_genes_in_association(cleanup_aln_file, pic_file):
         if seq not in seq_set:
             aln_db[smp] = seq
             seq_set.add(seq)
-    if len(fasta_io.fasta_db) <= 1:
+    if len(aln_db) <= 1:
         Msg.info("\tToo less samples, Aborting")
         return
 

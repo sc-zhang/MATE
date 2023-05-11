@@ -156,7 +156,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Visualization results found, skipping")
     else:
-        draw_variant_sites_in_association(ref_cds, out_asc_dir, out_vis_dir, thread)
+        draw_variant_sites_in_association(out_aln_dir, out_vis_dir, thread)
 
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)

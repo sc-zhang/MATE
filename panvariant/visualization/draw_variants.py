@@ -30,12 +30,17 @@ def __draw_genes_in_association(cleanup_aln_dir, asc_file, pic_dir):
         pic_file = path.join(pic_dir, "%s.pdf" % gene)
 
         # remove dup sequences
+        allele_type = 1
         for smp in sorted(fasta_io.fasta_db):
             seq = fasta_io.fasta_db[smp]
             seq_len = len(seq)
+
             if seq not in seq_set:
-                aln_db[smp] = seq
+                allele_name = "Allele %d" % allele_type
+                allele_type += 1
+                aln_db[allele_name] = seq
                 seq_set.add(seq)
+
         if len(aln_db) <= 1:
             Msg.warn("\tToo less samples, Aborting")
             return

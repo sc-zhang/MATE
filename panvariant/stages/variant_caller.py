@@ -49,6 +49,30 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
         Msg.info("\tToo few samples, Abort")
         return
 
+    # remove base if all samples are '-'
+    remove_pos = set()
+    for pos in range(seq_len):
+        is_remove = True
+        for smp in aln_db:
+            if aln_db[smp][pos] != '-':
+                is_remove = False
+                break
+        if is_remove:
+            remove_pos.add(pos)
+
+    cleanup_aln_db = {}
+    for smp in aln_db:
+        cleanup_aln_db[smp] = []
+        for pos in range(seq_len):
+            if pos not in remove_pos:
+                cleanup_aln_db[smp].append(aln_db[smp][pos])
+    for smp in cleanup_aln_db:
+        aln_db[smp] = ''.join(cleanup_aln_db[smp])
+
+    Msg.info("\tRegenerating consensus sequence")
+    consensus_seq = get_consensus_seq(aln_db)
+    seq_len = len(consensus_seq)
+
     Msg.info("\tChecking each site")
     full_info = []
     for i in range(seq_len):
@@ -85,7 +109,8 @@ def variant_caller(aln_dir, var_dir, cleanup_aln_dir, kmer_length, thread):
         aln_file = path.join(aln_dir, fn)
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
-        res.append([fn, pool.apply_async(__variant_caller_for_single_file, (aln_file, var_file, cleanup_aln_file, kmer_length, ))])
+        res.append([fn, pool.apply_async(__variant_caller_for_single_file,
+                                         (aln_file, var_file, cleanup_aln_file, kmer_length, ))])
     pool.close()
     pool.join()
 

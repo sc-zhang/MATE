@@ -57,7 +57,7 @@ values, the site with p-value less than 0.05 were saved as significant variant s
 - **08.Visualization**: for each phenotype, we created a subdirectory for it, and drawn the variants on genes, and for
 each gene, a pdf file with the same name of gene was saved. The bases with different colors have different means.
 ```bash
-lightgrey:   Match
-lightsalmon: Mismatch
-blue:        Key site
+lightgrey:    Match
+lightskyblue: Mismatch
+red:          Key site
 ```

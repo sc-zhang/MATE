@@ -86,7 +86,7 @@ class VariantIO:
             for gid in sorted(converted_var_db):
                 for idx in range(len(converted_var_db[gid])):
                     fout.write("\t%s-Allele%d" % (gid, idx + 1))
-            fout.write("Phenotype\n")
+            fout.write("\tPhenotype\n")
 
             for sample in sorted(cluster_sample_db):
                 fout.write("%s" % sample)
@@ -95,7 +95,7 @@ class VariantIO:
                     var_info = [0 for _ in range(len(converted_var_db[gid]))]
                     var_info[var_idx - 1] = 1
                     fout.write("\t%s" % ('\t'.join(map(str, var_info))))
-                fout.write("%f\n" % pheno_db[sample])
+                fout.write("\t%f\n" % pheno_db[sample])
 
 class AlignIO:
     def __init__(self):

@@ -144,8 +144,22 @@ def pipeline(args):
     else:
         associate_with_pheno(pheno_dir, out_cla_dir, out_asc_dir, thread)
 
-    Msg.info("Step8: Visualizing variants")
-    out_vis_dir = path.join(getcwd(), "08.Visualization")
+    Msg.info("Step8: Generating variant matrix")
+    out_merge_dir = path.join(getcwd(), "08.VariantMatrix")
+    is_finished = True
+    if not path.exists(out_merge_dir):
+        makedirs(out_merge_dir)
+        is_finished = False
+    else:
+        if not listdir(out_merge_dir):
+            is_finished = False
+    if is_finished:
+        Msg.info("Variant matrix found, skipping...")
+    else:
+        merge_variant_matrix(pheno_dir, out_asc_dir, out_merge_dir, thread)
+
+    Msg.info("Step9: Visualizing variants")
+    out_vis_dir = path.join(getcwd(), "09.Visualization")
     is_finished = True
     if not path.exists(out_vis_dir):
         makedirs(out_vis_dir)

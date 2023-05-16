@@ -41,7 +41,7 @@ def __merge_with_single_pheno(pheno_file, asc_file, merge_file):
     Msg.info("Finished")
 
 
-def final_merge_variants(pheno_dir, asc_dir, merge_dir, thread):
+def merge_variant_matrix(pheno_dir, asc_dir, merge_dir, thread):
     pool = Pool(processes=thread)
     Msg.info("Merging data")
 

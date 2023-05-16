@@ -70,6 +70,32 @@ class VariantIO:
                     alt_list = [alt[_] for _ in sorted(alt)]
                 fout.write("%d\t%s\t%s\t%s\n" % (pos, ref, ','.join(alt_list), '\t'.join(map(str, geno))))
 
+    @staticmethod
+    def write_merge_mat(merge_file, converted_var_db, var_cnt, cluster_sample_db, pheno_db):
+        # converted_var_db is a dict:
+        # gene_id:string => variant string 1:string => variant index 1:int
+        # var_cnt is a int list
+        # [gene1 variant type count, gene2 variant type count, ..., geneN variant type count]
+        # cluster_sample_db is a dict
+        # sample:string => gene_id:string => variant index:int
+        # pheno_db is a dict:
+        # sample:string => phenotype:float
+        with open(merge_file, 'w') as fout:
+            fout.write("#TypeInfo\t%s\n" % ('\t'.join(map(str, var_cnt))))
+            fout.write("#Sample")
+            for gid in sorted(converted_var_db):
+                for idx in range(len(converted_var_db[gid])):
+                    fout.write("\t%s-Allele%d" % (gid, idx + 1))
+            fout.write("Phenotype\n")
+
+            for sample in sorted(cluster_sample_db):
+                fout.write("%s" % sample)
+                for gid in sorted(cluster_sample_db[sample]):
+                    var_idx = cluster_sample_db[sample][gid]
+                    var_info = [0 for _ in range(len(converted_var_db[gid]))]
+                    var_info[var_idx - 1] = 1
+                    fout.write("\t%s" % ('\t'.join(map(str, var_info))))
+                fout.write("%f\n" % pheno_db[sample])
 
 class AlignIO:
     def __init__(self):
@@ -160,3 +186,23 @@ class AssociateIO:
                 geno_set.add(tuple(var_db[gid]['geno'][_]))
             converted_var_db[gid]['geno'] = sorted(geno_set)
         return converted_var_db
+
+    @staticmethod
+    def read_asc_for_merge(asc_file):
+        var_db = {}
+        with open(asc_file, 'r') as fin:
+            for line in fin:
+                data = line.strip().split()
+                if line[0] == '#':
+                    samples = data[2:-6]
+                else:
+                    gid = data[0]
+                    if gid not in var_db:
+                        var_db[gid] = {}
+                    for idx in range(len(samples)):
+                        var = data[idx + 2]
+                        sample = samples[idx]
+                        if sample not in var_db[gid]:
+                            var_db[gid][sample] = []
+                        var_db[gid][sample].append(var)
+        return var_db

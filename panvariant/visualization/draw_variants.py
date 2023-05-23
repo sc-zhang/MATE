@@ -60,10 +60,10 @@ def __draw_genes_in_association(cleanup_aln_dir, asc_file, pic_dir):
                    base_per_line=200,
                    highlight_positions=highlight_pos,
                    highlight_color='red',
-                   highlight_background_color='pink',
+                   highlight_background_color='sandybrown',
                    match_color='lightgrey',
                    mismatch_color='lightskyblue',
-                   mismatch_background_color='aliceblue')
+                   mismatch_background_color='lightcyan')
         plt.savefig(pic_file, bbox_inches='tight')
         plt.close('all')
         Msg.info("\tFinished")

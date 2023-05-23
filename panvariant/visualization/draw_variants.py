@@ -56,8 +56,14 @@ def __draw_genes_in_association(cleanup_aln_dir, asc_file, pic_dir):
         fig_height = max(int(seq_len/200.*len(aln_db)/4), 5)
         plt.figure(figsize=(20, fig_height), dpi=100)
         plt.rcParams['font.sans-serif'] = 'Courier New'
-        multialign(aln_db, base_per_line=200, highlight_positions=highlight_pos, highlight_color='red',
-                   match_color='lightgrey', mismatch_color='lightskyblue')
+        multialign(aln_db,
+                   base_per_line=200,
+                   highlight_positions=highlight_pos,
+                   highlight_color='red',
+                   highlight_background_color='pink',
+                   match_color='lightgrey',
+                   mismatch_color='lightskyblue',
+                   mismatch_background_color='aliceblue')
         plt.savefig(pic_file, bbox_inches='tight')
         plt.close('all')
         Msg.info("\tFinished")

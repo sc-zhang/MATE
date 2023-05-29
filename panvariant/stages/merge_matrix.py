@@ -1,47 +1,56 @@
-from panvariant.io.file_operate import VariantIO, PhenoIO, AssociateIO
+from panvariant.io.file_operate import VariantIO, PhenoIO, FastaIO
 from panvariant.io.message import Message as Msg
 from pathos.multiprocessing import Pool
 from os import listdir, path
 
 
-def __merge_with_single_pheno(pheno_file, asc_file, merge_file):
+def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, merge_file):
     Msg.info("\tLoading phenotypes")
     pheno = PhenoIO(pheno_file)
     pheno.read_pheno()
 
-    Msg.info("\tLoading association file")
-    asc = AssociateIO()
-    var_db = asc.read_asc_for_merge(asc_file)
-
     Msg.info("Converting data")
-    converted_var_db = {}
+
+    converted_allele_db = {}
     cluster_sample_db = {}
-    for gid in var_db:
-        converted_var_db[gid] = {}
-        var_idx = 1
-        for sample in var_db[gid]:
-            if sample not in pheno.pheno_db:
+    for fn in listdir(cleanup_aln_dir):
+        cleanup_aln_file = path.join(cleanup_aln_dir, fn)
+        gid = fn.split('.')[0]
+        fasta_io = FastaIO(cleanup_aln_file)
+        fasta_io.read_aln()
+        converted_allele_db[gid] = {}
+        allele_idx = 1
+        for smp in sorted(pheno.pheno_db):
+            if smp not in fasta_io.fasta_db:
                 continue
-            var = ''.join(var_db[gid][sample])
-            if var not in converted_var_db[gid]:
-                converted_var_db[gid][var] = var_idx
-                var_idx += 1
+            else:
+                seq = fasta_io.fasta_db[smp]
+                if seq not in converted_allele_db[gid]:
+                    converted_allele_db[gid][seq] = allele_idx
+                    allele_idx += 1
 
-            if sample not in cluster_sample_db:
-                cluster_sample_db[sample] = {}
-            cluster_sample_db[sample][gid] = converted_var_db[gid][var]
+        # for absence, the allele idx set to last allele
+        converted_allele_db[gid][""] = allele_idx
+        for smp in sorted(pheno.pheno_db):
+            if smp not in cluster_sample_db:
+                cluster_sample_db[smp] = {}
+            if smp in fasta_io.fasta_db:
+                seq = fasta_io.fasta_db[smp]
+            else:
+                seq = ""
+            cluster_sample_db[smp][gid] = converted_allele_db[gid][seq]
 
-    var_cnt = []
-    for gid in sorted(converted_var_db):
-        var_cnt.append(len(converted_var_db[gid]))
+    allele_cnt = []
+    for gid in sorted(converted_allele_db):
+        allele_cnt.append(len(converted_allele_db[gid]))
 
     Msg.info("\tWriting merged matrix")
-    var_io = VariantIO()
-    var_io.write_merge_mat(merge_file, converted_var_db, var_cnt, cluster_sample_db, pheno.pheno_db)
+    allele_io = VariantIO()
+    allele_io.write_merge_mat(merge_file, converted_allele_db, allele_cnt, cluster_sample_db, pheno.pheno_db)
     Msg.info("Finished")
 
 
-def merge_variant_matrix(pheno_dir, asc_dir, merge_dir, thread):
+def merge_variant_matrix(pheno_dir, cleanup_aln_dir, merge_dir, thread):
     pool = Pool(processes=thread)
     Msg.info("Merging data")
 
@@ -49,9 +58,8 @@ def merge_variant_matrix(pheno_dir, asc_dir, merge_dir, thread):
     for pheno_fn in listdir(pheno_dir):
         Msg.info("\tMerging with %s" % pheno_fn)
         pheno_file = path.join(pheno_dir, pheno_fn)
-        asc_file = path.join(asc_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.asc')
         merge_file = path.join(merge_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.mat')
-        res.append([pheno_fn, pool.apply_async(__merge_with_single_pheno, (pheno_file, asc_file, merge_file, ))])
+        res.append([pheno_fn, pool.apply_async(__merge_with_single_pheno, (pheno_file, cleanup_aln_dir, merge_file, ))])
     pool.close()
     pool.join()
 

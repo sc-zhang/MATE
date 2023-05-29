@@ -158,7 +158,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Variant matrix found, skipping...")
     else:
-        merge_variant_matrix(pheno_dir, out_asc_dir, out_merge_dir, thread)
+        merge_variant_matrix(pheno_dir, out_aln_dir, out_merge_dir, thread)
 
     Msg.info("Step9: Visualizing variants")
     out_vis_dir = path.join(getcwd(), "09.Visualization")

@@ -2,6 +2,7 @@ from os import path, makedirs, getcwd, listdir, chdir
 from panvariant.io.message import Message as Msg
 from panvariant.stages import *
 from panvariant.visualization.draw_variants import draw_variant_sites_in_association
+from time import time
 
 
 def get_sample_set(in_dir):
@@ -12,6 +13,7 @@ def get_sample_set(in_dir):
 
 
 def pipeline(args):
+    start_time = time()
     ref_cds = path.abspath(args.ref)
     genome_dir = path.abspath(args.genome)
     out_dir = path.abspath(args.output)
@@ -174,4 +176,5 @@ def pipeline(args):
 
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)
-    Msg.info("All done.")
+    end_time = time()
+    Msg.info("All done, cost: %.2f sec." % (end_time-start_time))

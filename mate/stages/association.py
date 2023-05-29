@@ -1,5 +1,5 @@
-from panvariant.io.file_operate import VariantIO, PhenoIO, AssociateIO
-from panvariant.io.message import Message as Msg
+from mate.io.file_operate import VariantIO, PhenoIO, AssociateIO
+from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
 from os import listdir, path
 from scipy.stats import levene, ttest_ind

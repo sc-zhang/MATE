@@ -1,6 +1,6 @@
-from panvariant.base.dep_check import DepCheck
-from panvariant.base.runner import Runner
-from panvariant.io.message import Message as Msg
+from mate.base.dep_check import DepCheck
+from mate.base.runner import Runner
+from mate.io.message import Message as Msg
 from os import path, makedirs, listdir
 
 

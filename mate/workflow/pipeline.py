@@ -1,7 +1,7 @@
 from os import path, makedirs, getcwd, listdir, chdir
-from panvariant.io.message import Message as Msg
-from panvariant.stages import *
-from panvariant.visualization.draw_variants import draw_variant_sites_in_association
+from mate.io.message import Message as Msg
+from mate.stages import *
+from mate.visualization.draw_variants import draw_variant_sites_in_association
 from time import time
 
 

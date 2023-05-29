@@ -1,6 +1,6 @@
 from os import path, listdir
-from panvariant.io.message import Message as Msg
-from panvariant.io.file_operate import FastaIO
+from mate.io.message import Message as Msg
+from mate.io.file_operate import FastaIO
 
 
 # for running mafft, we need collect all cds with same id in different cds file to one file,

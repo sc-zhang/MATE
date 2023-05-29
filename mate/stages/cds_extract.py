@@ -1,6 +1,6 @@
 from os import path, listdir
-from panvariant.io.file_operate import FastaIO
-from panvariant.io.message import Message as Msg
+from mate.io.file_operate import FastaIO
+from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
 
 

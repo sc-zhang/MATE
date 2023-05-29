@@ -1,6 +1,6 @@
-from panvariant.io.file_operate import FastaIO, VariantIO, AlignIO
-from panvariant.io.message import Message as Msg
-from panvariant.base.consensus_seq import get_consensus_seq
+from mate.io.file_operate import FastaIO, VariantIO, AlignIO
+from mate.io.message import Message as Msg
+from mate.base.consensus_seq import get_consensus_seq
 from pathos.multiprocessing import Pool
 from os import listdir, path
 

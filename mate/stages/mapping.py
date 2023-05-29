@@ -1,7 +1,7 @@
 from os import listdir, path, getcwd, chdir
-from panvariant.base.dep_check import DepCheck
-from panvariant.base.runner import Runner
-from panvariant.io.message import Message as Msg
+from mate.base.dep_check import DepCheck
+from mate.base.runner import Runner
+from mate.io.message import Message as Msg
 
 
 def mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread):

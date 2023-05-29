@@ -1,5 +1,5 @@
 from os import popen
-from panvariant.io.message import Message as Msg
+from mate.io.message import Message as Msg
 
 
 class Runner:

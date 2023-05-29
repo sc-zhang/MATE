@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-from panvariant.workflow.pipeline import pipeline
+from mate.workflow.pipeline import pipeline
 
 
 def get_opts():

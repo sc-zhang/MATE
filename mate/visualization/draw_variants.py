@@ -1,8 +1,8 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from bioplotz import multialign
-from panvariant.io.file_operate import FastaIO, AssociateIO
-from panvariant.io.message import Message as Msg
+from mate.io.file_operate import FastaIO, AssociateIO
+from mate.io.message import Message as Msg
 from os import listdir, path, makedirs
 from pathos.multiprocessing import Pool
 

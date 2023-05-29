@@ -16,14 +16,14 @@ This software is a tool for identifying variants associate with phenotypes from 
 ```bash
 cd /path/to/install
 git clone https://github.com/sc-zhang/PanVariant.git
-chmod +x PanVariant/panvariant.py
+chmod +x PanVariant/mate.py
 echo 'export PATH=/path/to/install/PanVariant:$PATH' >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
 ## Usage
 ```bash
-usage: panvariant.py [-h] -r REF -g GENOME [-l PLOIDY] -p PHENO [-k KMER] -o OUTPUT [-t THREAD]
+usage: mate.py [-h] -r REF -g GENOME [-l PLOIDY] -p PHENO [-k KMER] -o OUTPUT [-t THREAD]
 
 options:
   -h, --help            show this help message and exit

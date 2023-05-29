@@ -15,9 +15,9 @@ This software is a tool for identifying variants associate with phenotypes from 
 ## Installation
 ```bash
 cd /path/to/install
-git clone https://github.com/sc-zhang/PanVariant.git
-chmod +x PanVariant/mate.py
-echo 'export PATH=/path/to/install/PanVariant:$PATH' >> ~/.bash_profile
+git clone https://github.com/sc-zhang/MATE.git
+chmod +x MATE/mate.py
+echo 'export PATH=/path/to/install/MATE:$PATH' >> ~/.bash_profile
 source ~/.bash_profile
 ```
 

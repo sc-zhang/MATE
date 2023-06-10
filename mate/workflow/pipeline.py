@@ -98,21 +98,23 @@ def pipeline(args):
         mafft_alignment(converted_cds_dir, out_mafft_dir, thread)
 
     Msg.info("Step5: Variant calling")
-    out_var_dir = path.join(getcwd(), "05.Variant")
-    out_aln_dir = path.join(getcwd(), "05.CleanupAlign")
+    out_aln_dir = path.join(getcwd(), "05.Variants", "01.CleanupAlign")
+    out_var_dir = path.join(getcwd(), "05.Variants", "02.Variant")
     is_finished = True
-    if not path.exists(out_var_dir):
-        makedirs(out_var_dir)
-        is_finished = False
-    else:
-        if not listdir(out_var_dir):
-            is_finished = False
     if not path.exists(out_aln_dir):
         makedirs(out_aln_dir)
         is_finished = False
     else:
         if not listdir(out_aln_dir):
             is_finished = False
+
+    if not path.exists(out_var_dir):
+        makedirs(out_var_dir)
+        is_finished = False
+    else:
+        if not listdir(out_var_dir):
+            is_finished = False
+
     if is_finished:
         Msg.info("Variant results found, skipping...")
     else:

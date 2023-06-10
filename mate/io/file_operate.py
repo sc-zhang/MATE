@@ -55,7 +55,7 @@ class VariantIO:
                     pos = int(data[0])
                     ref = data[1]
                     alt_sites = data[2].split(',')
-                    alt = {_+1: alt_sites[_] for _ in range(len(alt_sites))}
+                    alt = {_ + 1: alt_sites[_] for _ in range(len(alt_sites))}
                     self.variants.append([pos, ref, alt, list(map(int, data[3:]))])
 
     @staticmethod
@@ -81,11 +81,17 @@ class VariantIO:
         # pheno_db is a dict:
         # sample:string => phenotype:float
         with open(merge_file, 'w') as fout:
+            seq_db = {}
             fout.write("#TypeInfo\t%s\n" % ('\t'.join(map(str, var_cnt))))
             fout.write("#Sample")
             for gid in sorted(converted_var_db):
                 for idx in range(len(converted_var_db[gid])):
                     fout.write("\t%s-Allele%d" % (gid, idx + 1))
+                for seq in converted_var_db[gid]:
+                    idx = converted_var_db[gid][seq]
+                    seq_id = "%s-Allele%d" % (gid, idx)
+                    seq_db[seq_id] = seq
+
             fout.write("\tPhenotype\n")
 
             for sample in sorted(cluster_sample_db):
@@ -96,6 +102,11 @@ class VariantIO:
                     var_info[var_idx - 1] = 1
                     fout.write("\t%s" % ('\t'.join(map(str, var_info))))
                 fout.write("\t%f\n" % pheno_db[sample])
+
+            fout.write("#\n#\n#Allele Sequences\n")
+            for seq_id in sorted(seq_db):
+                fout.write("# %s\t%s\n" % (seq_id, seq_db[seq_id] if seq_db[seq_id] else "Absence"))
+
 
 class AlignIO:
     def __init__(self):
@@ -168,7 +179,7 @@ class AssociateIO:
                     var_db[gid]['pos'].append(pos)
                     # read genotype of each sample
                     for _ in range(len(data[2:-6])):
-                        geno_idx = _+2
+                        geno_idx = _ + 2
                         var_db[gid]['geno'][_].append(data[geno_idx])
                     var_db[gid]['ref'].append(ref)
                     var_db[gid]['alt'].append(alt)

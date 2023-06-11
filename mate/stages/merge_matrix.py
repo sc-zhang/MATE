@@ -1,4 +1,4 @@
-from mate.io.file_operate import VariantIO, PhenoIO, FastaIO
+from mate.io.file_operate import PhenoIO, FastaIO, MatrixIO
 from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
 from os import listdir, path
@@ -45,7 +45,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, merge_file):
         allele_cnt.append(len(converted_allele_db[gid]))
 
     Msg.info("\tWriting merged matrix")
-    allele_io = VariantIO()
+    allele_io = MatrixIO()
     allele_io.write_merge_mat(merge_file, converted_allele_db, allele_cnt, cluster_sample_db, pheno.pheno_db)
     Msg.info("Finished")
 

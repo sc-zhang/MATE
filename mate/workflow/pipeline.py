@@ -173,18 +173,21 @@ def pipeline(args):
     else:
         if not listdir(out_vis_var_dir):
             is_finished = False
+    if is_finished:
+        Msg.info("Visualization of variants found, skipping")
+    else:
+        draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
 
+    is_finished = True
     if not path.exists(out_vis_allele_dir):
         makedirs(out_vis_allele_dir)
         is_finished = False
     else:
         if not listdir(out_vis_allele_dir):
             is_finished = False
-
     if is_finished:
-        Msg.info("Visualization results found, skipping")
+        Msg.info("Visualization of alleles found, skipping")
     else:
-        draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
         draw_alleles(out_merge_dir, out_vis_allele_dir, thread)
 
     Msg.info("Return %s" % cur_dir)

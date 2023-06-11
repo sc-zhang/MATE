@@ -56,8 +56,10 @@ of phenotypes in the same group, after that, a t-test was taken between the top 
 values, the site with p-value less than 0.05 were saved as significant variant sites.
 - **08.VariantMatrix**: for each phenotype, we classified genes into several alleles with significant variant site in 
 samples, then for each sample, we set allele in this sample as '1', otherwise '0'.
-- **09.Visualization**: for each phenotype, we created a subdirectory for it, and drawn the variants on genes, and for
-each gene, a pdf file with the same name of gene was saved. The bases with different colors have different means.
+- **09.Visualization**: for important variants, we created a subdirectory "01.Variants", and for each phenotype, 
+we created a subdirectory for it in "01.Variants", and drawn the variants on genes, and for each gene, a pdf file 
+with the same name of gene was saved. The bases with different colors have different means; for different alleles we 
+did same thing as variants, but created a subdirectory "02.Alleles".
 ```bash
 lightgrey:    Match
 lightskyblue: Mismatch

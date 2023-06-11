@@ -29,8 +29,8 @@ def __draw_alleles(mat_file, pic_dir):
         multialign(allele_db[gene_id],
                    base_per_line=200,
                    match_color='lightgrey',
-                   mismatch_color='lightskyblue',
-                   mismatch_background_color='sandybrown')
+                   mismatch_color='blue',
+                   mismatch_background_color='lightskyblue')
         pic_file = path.join(pic_dir, "%s.pdf" % gene_id)
         plt.savefig(pic_file, bbox_inches='tight')
         plt.close('all')

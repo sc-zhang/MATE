@@ -70,6 +70,35 @@ class VariantIO:
                     alt_list = [alt[_] for _ in sorted(alt)]
                 fout.write("%d\t%s\t%s\t%s\n" % (pos, ref, ','.join(alt_list), '\t'.join(map(str, geno))))
 
+
+class MatrixIO:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def read_merge_mat(mat_file):
+        allele_db = {}
+        with open(mat_file, 'r') as fin:
+            start_read = False
+            for line in fin:
+                if line.strip() == "":
+                    continue
+                if line[0] == '#':
+                    if line.startswith("#Allele Sequences"):
+                        start_read = True
+                        continue
+                    if start_read:
+                        data = line.strip().split()
+                        allele_id = data[1]
+                        allele_seq = data[2]
+                        if allele_seq == 'Absence':
+                            continue
+                        gene_id = '-'.join(allele_id.split('-')[:-1])
+                        if gene_id not in allele_db:
+                            allele_db[gene_id] = {}
+                        allele_db[gene_id][allele_id] = allele_seq
+        return allele_db
+
     @staticmethod
     def write_merge_mat(merge_file, converted_var_db, var_cnt, cluster_sample_db, pheno_db):
         # converted_var_db is a dict:

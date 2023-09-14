@@ -33,7 +33,7 @@ options:
   -l PLOIDY, --ploidy PLOIDY
                         Ploidy of genomes, default=2
   -p PHENO, --pheno PHENO
-                        Directory contain phenotypes for association
+                        Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   -k KMER, --kmer KMER  kmer length for cleanup mafft result, default=5
   -o OUTPUT, --output OUTPUT
                         Output directory
@@ -41,9 +41,11 @@ options:
                         Thread number, default=10
 ```
 **Notice** the id of genes in reference cds file must not contain invalid characters that cannot use in path, like '/', 
-'\', '?', et al.  
+'\', '?', et al. 
+**Notice** if one phenotype file in pheno directory starts with "LOW-" (all three letters in up case) means the 
+lower value of this phenotype is better than higher.  
 **Notice** font "Courier New" is required for visualizing, user can copy ttf file of "Courier New" to 
-~/.local/share/fonts and use command below to make cache
+~/.local/share/fonts and use command below to make cache.
 ```bash
 fc-cache -f -v
 rm -rf ~/.cache/matplotlib/
@@ -52,7 +54,7 @@ rm -rf ~/.cache/matplotlib/
 ## Results
 - **07.Association**: asc files in 07.Association contain all significant variants. The significant variants were 
 identified by divided samples into groups with same variant for each variant site, then, calculated the average value 
-of phenotypes in the same group, after that, a t-test was taken between the top 2 groups with the highest average 
+of phenotypes in the same group, after that, a t-test was taken between the top 2 groups with the best average 
 values, the site with p-value less than 0.05 were saved as significant variant sites.
 - **08.VariantMatrix**: for each phenotype, we classified genes into several alleles with significant variant site in 
 samples, then for each sample, we set allele in this sample as '1', otherwise '0'.

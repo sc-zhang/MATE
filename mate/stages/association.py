@@ -7,7 +7,7 @@ from outliers import smirnov_grubbs as grubbs
 from numpy import array, average, std
 
 
-def __associate_with_single_pheno(pheno_file, cla_dir, asc_file):
+def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better):
     Msg.info("\tLoading phenotypes")
     pheno = PhenoIO(pheno_file)
     pheno.read_pheno()
@@ -54,7 +54,7 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file):
                 cur_site_pheno_list.append([average(clean_pheno), pheno_idx, clean_pheno])
             if len(cur_site_pheno_list) < 2:
                 continue
-            cur_site_pheno_list = sorted(cur_site_pheno_list, reverse=True)
+            cur_site_pheno_list = sorted(cur_site_pheno_list, reverse=True if not is_lower_better else False)
             _, best_type, best_pheno = cur_site_pheno_list[0]
             _, sec_best_type, sec_best_pheno = cur_site_pheno_list[1]
 
@@ -94,9 +94,15 @@ def associate_with_pheno(pheno_dir, cla_dir, asc_dir, thread):
     res = []
     for pheno_fn in listdir(pheno_dir):
         Msg.info("\tAssociating with %s" % pheno_fn)
+        if pheno_fn.startswith("LOW-"):
+            is_lower_better = True
+        else:
+            is_lower_better = False
+
         pheno_file = path.join(pheno_dir, pheno_fn)
         asc_file = path.join(asc_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.asc')
-        res.append([pheno_fn, pool.apply_async(__associate_with_single_pheno, (pheno_file, cla_dir, asc_file,))])
+        res.append([pheno_fn, pool.apply_async(__associate_with_single_pheno,
+                                               (pheno_file, cla_dir, asc_file, is_lower_better, ))])
     pool.close()
     pool.join()
 

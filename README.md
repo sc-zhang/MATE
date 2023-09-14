@@ -41,7 +41,7 @@ options:
                         Thread number, default=10
 ```
 **Notice** the id of genes in reference cds file must not contain invalid characters that cannot use in path, like '/', 
-'\', '?', et al. 
+'\', '?', et al.  
 **Notice** if one phenotype file in pheno directory starts with "LOW-" (all three letters in up case) means the 
 lower value of this phenotype is better than higher.  
 **Notice** font "Courier New" is required for visualizing, user can copy ttf file of "Courier New" to 

@@ -4,7 +4,7 @@ This software is a tool for identifying variants associate with phenotypes from 
 ## Dependencies
 ### Software
  - Python >= 3.7
- - GMAP
+ - GMAP >= 2021
  - MAFFT
 ### Python Modules
  - pathos==0.3.0

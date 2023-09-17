@@ -55,7 +55,7 @@ def variant_classifier(var_dir, cla_dir, thread):
         Msg.info("\tClassifying %s" % fn)
         var_file = path.join(var_dir, fn)
         cla_file = path.join(cla_dir, fn.replace('.var', '.cla'))
-        res.append([fn, pool.apply_async(__variant_classifier_for_single_file(var_file, cla_file, ))])
+        res.append([fn, pool.apply_async(__variant_classifier_for_single_file, (var_file, cla_file, ))])
     pool.close()
     pool.join()
 

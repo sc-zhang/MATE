@@ -39,12 +39,13 @@ def pipeline(args):
     else:
         if not listdir(gmap_out_gff3_dir):
             is_finished = False
+        gff3_set = set()
         for fn in listdir(gmap_out_gff3_dir):
             if not fn.endswith('.gff3'):
                 continue
-            if fn.replace('.gff3', '') not in sample_set:
-                is_finished = False
-                break
+            gff3_set.add(fn.replace('.gff3', ''))
+        if gff3_set != sample_set:
+            is_finished = False
     if is_finished:
         Msg.info("Gmap results are found, skipping...")
     else:

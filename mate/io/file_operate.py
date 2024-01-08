@@ -7,18 +7,15 @@ class FastaIO:
     def read_fasta(self):
         with open(self.__fasta_file, 'r') as fin:
             gid = ""
-            seq = ""
             for line in fin:
                 if line[0] == '>':
-                    if seq != "":
-                        self.fasta_db[gid] = seq
                     gid = line.strip().split()[0][1:]
-                    seq = ""
+                    self.fasta_db[gid] = []
                 else:
-                    seq += line.strip().upper()
-        self.fasta_db[gid] = seq
+                    self.fasta_db[gid].append(line.strip().upper())
 
         for gid in self.fasta_db:
+            self.fasta_db[gid] = ''.join(self.fasta_db[gid])
             self.seq_len_db[gid] = len(self.fasta_db[gid])
 
     def read_aln(self):

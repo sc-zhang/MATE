@@ -29,7 +29,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
     for fn in listdir(cleanup_aln_dir):
         is_sig = True
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
-        gid = fn.split('.')[0]
+        gid = '.'.join(fn.split('.')[:-1])
         if not path.exists(asc_file):
             var_sites_db = {}
         else:

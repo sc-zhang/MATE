@@ -2,7 +2,7 @@ from os import path, makedirs, getcwd, listdir, chdir
 from mate.io.message import Message as Msg
 from mate.stages import *
 from mate.visualization.draw_variants import draw_variant_sites_in_association
-from mate.visualization.draw_alleles import draw_alleles
+from mate.visualization.draw_alleles import draw_sig_alleles, draw_cleanup_alleles
 from time import time
 
 
@@ -151,22 +151,32 @@ def pipeline(args):
         associate_with_pheno(pheno_dir, out_cla_dir, out_asc_dir, thread)
 
     Msg.info("Step8: Generating variant matrix")
-    out_merge_dir = path.join(getcwd(), "08.VariantMatrix")
+    out_merge_cleanup_dir = path.join(getcwd(), "08.VariantMatrix", "01.CleanupAlleles")
+    out_merge_sig_dir = path.join(getcwd(), "08.VariantMatrix", "02.SignificantAlleles")
     is_finished = True
-    if not path.exists(out_merge_dir):
-        makedirs(out_merge_dir)
+    if not path.exists(out_merge_cleanup_dir):
+        makedirs(out_merge_cleanup_dir)
         is_finished = False
     else:
-        if not listdir(out_merge_dir):
+        if not listdir(out_merge_cleanup_dir):
+            is_finished = False
+
+    if not path.exists(out_merge_sig_dir):
+        makedirs(out_merge_sig_dir)
+        is_finished = False
+    else:
+        if not listdir(out_merge_sig_dir):
             is_finished = False
     if is_finished:
         Msg.info("Variant matrix found, skipping...")
     else:
-        merge_variant_matrix(pheno_dir, out_aln_dir, out_merge_dir, thread)
+        merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir, out_merge_cleanup_dir, out_merge_sig_dir, thread)
 
     Msg.info("Step9: Visualizing variants")
     out_vis_var_dir = path.join(getcwd(), "09.Visualization", "01.Variants")
-    out_vis_allele_dir = path.join(getcwd(), "09.Visualization", "02.Alleles")
+    out_vis_cleanup_allele_dir = path.join(getcwd(), "09.Visualization", "02.Alleles", "01.CleanupAlleles")
+    out_vis_sig_allele_dir = path.join(getcwd(), "09.Visualization", "02.Alleles", "02.SignificantAlleles")
+
     is_finished = True
     if not path.exists(out_vis_var_dir):
         makedirs(out_vis_var_dir)
@@ -180,16 +190,28 @@ def pipeline(args):
         draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
 
     is_finished = True
-    if not path.exists(out_vis_allele_dir):
-        makedirs(out_vis_allele_dir)
+    if not path.exists(out_vis_cleanup_allele_dir):
+        makedirs(out_vis_cleanup_allele_dir)
         is_finished = False
     else:
-        if not listdir(out_vis_allele_dir):
+        if not listdir(out_vis_cleanup_allele_dir):
             is_finished = False
     if is_finished:
-        Msg.info("Visualization of alleles found, skipping")
+        Msg.info("Visualization of cleanup alleles found, skipping")
     else:
-        draw_alleles(out_merge_dir, out_vis_allele_dir, thread)
+        draw_cleanup_alleles(out_merge_cleanup_dir, out_vis_cleanup_allele_dir, thread)
+
+    is_finished = True
+    if not path.exists(out_vis_sig_allele_dir):
+        makedirs(out_vis_sig_allele_dir)
+        is_finished = False
+    else:
+        if not listdir(out_vis_sig_allele_dir):
+            is_finished = False
+    if is_finished:
+        Msg.info("Visualization of significant alleles found, skipping")
+    else:
+        draw_sig_alleles(out_merge_sig_dir, out_vis_sig_allele_dir, thread)
 
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)

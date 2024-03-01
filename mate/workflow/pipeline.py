@@ -2,7 +2,7 @@ from os import path, makedirs, getcwd, listdir, chdir
 from mate.io.message import Message as Msg
 from mate.stages import *
 from mate.visualization.draw_variants import draw_variant_sites_in_association
-from mate.visualization.draw_alleles import draw_sig_alleles, draw_cleanup_alleles
+from mate.visualization.draw_alleles import draw_alleles
 from time import time
 
 
@@ -199,7 +199,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Visualization of cleanup alleles found, skipping")
     else:
-        draw_cleanup_alleles(out_merge_cleanup_dir, out_vis_cleanup_allele_dir, thread)
+        draw_alleles(out_merge_cleanup_dir, out_vis_cleanup_allele_dir, thread)
 
     is_finished = True
     if not path.exists(out_vis_sig_allele_dir):
@@ -211,7 +211,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Visualization of significant alleles found, skipping")
     else:
-        draw_sig_alleles(out_merge_sig_dir, out_vis_sig_allele_dir, thread)
+        draw_alleles(out_merge_sig_dir, out_vis_sig_allele_dir, thread)
 
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)

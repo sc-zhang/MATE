@@ -6,3 +6,4 @@ from .multi_alignment import mafft_alignment
 from .variant_caller import variant_caller
 from .variant_classifier import variant_classifier
 from .merge_matrix import merge_variant_matrix
+from .bam_convert import BAM2CDS

@@ -176,6 +176,7 @@ def pipeline(args):
 
     Msg.info("Step%d: Associating with phenotypes" % cur_stage)
     out_asc_dir = path.join(getcwd(), "%02d.Association" % cur_stage)
+    cur_stage += 1
     is_finished = True
     if not path.exists(out_asc_dir):
         makedirs(out_asc_dir)

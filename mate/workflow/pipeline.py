@@ -30,6 +30,7 @@ def pipeline(args):
     pheno_dir = path.abspath(args.pheno)
     kmer_length = args.kmer
     thread = args.thread
+    save_pdf = args.show
 
     cur_dir = path.abspath(getcwd())
     if not path.exists(out_dir):
@@ -83,7 +84,7 @@ def pipeline(args):
             cds_extractor = CDSExtract(gmap_out_gff3_dir, genome_dir, extract_cds_dir, thread)
             cds_extractor.extract()
     else:
-        sample_set = get_sample_set(bam_dir)
+        sample_set = get_sample_set(bam_dir, filetype="bam")
         Msg.info("Step%d: Converting Bam to CDS" % cur_stage)
         extract_cds_dir = path.join(getcwd(), "%02d.CDS" % cur_stage)
         cur_stage += 1
@@ -212,46 +213,47 @@ def pipeline(args):
     else:
         merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir, out_merge_cleanup_dir, out_merge_sig_dir, thread)
 
-    Msg.info("Step%d: Visualizing variants" % cur_stage)
-    out_vis_var_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "01.Variants")
-    out_vis_cleanup_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "01.CleanupAlleles")
-    out_vis_sig_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "02.SignificantAlleles")
-    cur_stage += 1
-    is_finished = True
-    if not path.exists(out_vis_var_dir):
-        makedirs(out_vis_var_dir)
-        is_finished = False
-    else:
-        if not listdir(out_vis_var_dir):
+    if save_pdf:
+        Msg.info("Step%d: Visualizing variants" % cur_stage)
+        out_vis_var_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "01.Variants")
+        out_vis_cleanup_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "01.CleanupAlleles")
+        out_vis_sig_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "02.SignificantAlleles")
+        cur_stage += 1
+        is_finished = True
+        if not path.exists(out_vis_var_dir):
+            makedirs(out_vis_var_dir)
             is_finished = False
-    if is_finished:
-        Msg.info("Visualization of variants found, skipping")
-    else:
-        draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
+        else:
+            if not listdir(out_vis_var_dir):
+                is_finished = False
+        if is_finished:
+            Msg.info("Visualization of variants found, skipping")
+        else:
+            draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
 
-    is_finished = True
-    if not path.exists(out_vis_cleanup_allele_dir):
-        makedirs(out_vis_cleanup_allele_dir)
-        is_finished = False
-    else:
-        if not listdir(out_vis_cleanup_allele_dir):
+        is_finished = True
+        if not path.exists(out_vis_cleanup_allele_dir):
+            makedirs(out_vis_cleanup_allele_dir)
             is_finished = False
-    if is_finished:
-        Msg.info("Visualization of cleanup alleles found, skipping")
-    else:
-        draw_alleles(out_merge_cleanup_dir, out_vis_cleanup_allele_dir, thread)
+        else:
+            if not listdir(out_vis_cleanup_allele_dir):
+                is_finished = False
+        if is_finished:
+            Msg.info("Visualization of cleanup alleles found, skipping")
+        else:
+            draw_alleles(out_merge_cleanup_dir, out_vis_cleanup_allele_dir, thread)
 
-    is_finished = True
-    if not path.exists(out_vis_sig_allele_dir):
-        makedirs(out_vis_sig_allele_dir)
-        is_finished = False
-    else:
-        if not listdir(out_vis_sig_allele_dir):
+        is_finished = True
+        if not path.exists(out_vis_sig_allele_dir):
+            makedirs(out_vis_sig_allele_dir)
             is_finished = False
-    if is_finished:
-        Msg.info("Visualization of significant alleles found, skipping")
-    else:
-        draw_alleles(out_merge_sig_dir, out_vis_sig_allele_dir, thread)
+        else:
+            if not listdir(out_vis_sig_allele_dir):
+                is_finished = False
+        if is_finished:
+            Msg.info("Visualization of significant alleles found, skipping")
+        else:
+            draw_alleles(out_merge_sig_dir, out_vis_sig_allele_dir, thread)
 
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)

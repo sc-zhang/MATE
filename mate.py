@@ -19,6 +19,8 @@ def get_opts():
     groups.add_argument('-k', '--kmer', help="kmer length for cleanup mafft result, default=5",
                         type=int, default=5)
     groups.add_argument('-o', '--output', help="Output directory", required=True)
+    groups.add_argument('-s', '--show', help="The multi-alignment of variants would be stored as pdf "
+                                             "file if this parameter is set", action="store_true")
     groups.add_argument('-t', '--thread', help="Thread number, default=10", type=int, default=10)
 
     return groups.parse_args()

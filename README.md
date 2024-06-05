@@ -9,13 +9,15 @@ This software is a tool for identifying variants associate with phenotypes from 
 ### Python Modules
  - pathos==0.3.0
  - outlier_utils
- - scipy.stats
+ - scipy
  - bioplotz
+ - pysam
 
 ## Installation
 ```bash
 cd /path/to/install
 git clone https://github.com/sc-zhang/MATE.git
+pip install -r requirements.txt
 chmod +x MATE/mate.py
 echo 'export PATH=/path/to/install/MATE:$PATH' >> ~/.bash_profile
 source ~/.bash_profile

@@ -80,8 +80,8 @@ class BAM2CDS:
                                 if ref_offset >= len(fasta_io.fasta_db[ref_name]):
                                     break
                             elif aln_type in qry_move_set:
-                                if last_ref_offset != 0:
-                                    qry_base.append(qry_seq[qry_offset])
+                                # if last_ref_offset != 0:
+                                qry_base.append(qry_seq[qry_offset])
                                 qry_offset += 1
                             elif aln_type == 0:
                                 qry_base.append(qry_seq[qry_offset])
@@ -111,6 +111,7 @@ class BAM2CDS:
                     else:
                         best_base = sorted(info, key=lambda x: info[x], reverse=True)[0]
                         if info[best_base] < seq_cov / 5.:
+                            #best_base = ''
                             best_base = fasta_io.fasta_db[ref_name][i]
                     seq.append(best_base)
                 seq = ''.join(seq)

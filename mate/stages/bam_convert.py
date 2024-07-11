@@ -40,7 +40,7 @@ class BAM2CDS:
     
         '''
         CIGAR:
-        Op BAM Description Consumes_query Consumes_refernece
+        Op BAM Description Consumes_query Consumes_reference
         M 0 alignment match (can be a sequence match or mismatch) yes yes
         I 1 insertion to the reference yes no
         D 2 deletion from the reference no yes
@@ -51,12 +51,12 @@ class BAM2CDS:
         = 7 sequence match yes yes
         X 8 sequence mismatch yes yes
         '''
-        qry_move_set = set([1, 4])
-        ref_move_set = set([2, 3])
+        qry_move_set = {1, 4}
+        ref_move_set = {2, 3}
         seq_length = 0
         with pysam.AlignmentFile(in_bam, 'rb') as fin:
             for line in fin:
-                if not (line.flag & failed_flags):
+                if (not (line.flag & failed_flags)) and line.mapq >= 1:
                     ref_name = line.reference_name
                     ref_start = line.reference_start
                     qry_start = line.query_alignment_start
@@ -111,7 +111,7 @@ class BAM2CDS:
                     else:
                         best_base = sorted(info, key=lambda x: info[x], reverse=True)[0]
                         if info[best_base] < seq_cov / 5.:
-                            #best_base = ''
+                            # best_base = ''
                             best_base = fasta_io.fasta_db[ref_name][i]
                     seq.append(best_base)
                 seq = ''.join(seq)

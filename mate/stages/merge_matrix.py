@@ -1,3 +1,5 @@
+import copy
+
 from mate.io.file_operate import PhenoIO, FastaIO, MatrixIO, AssociateIO
 from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
@@ -43,16 +45,38 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
         if is_sig:
             converted_sig_allele_db[gid] = {}
             sig_allele_idx = 1
+
+        # for one allele which supported samples lower than 2, mark it as absence
+        support_cnt = {}
+        sig_support_cnt = {}
         for smp in sorted(pheno.pheno_db):
             if smp not in fasta_io.fasta_db:
                 continue
             else:
                 seq = fasta_io.fasta_db[smp]
+            if seq not in support_cnt:
+                support_cnt[seq] = 0
+            support_cnt[seq] += 1
+            if is_sig:
+                sig_vars = __get_sig_vars(seq, var_sites_db[gid])
+                if sig_vars not in sig_support_cnt:
+                    sig_support_cnt[sig_vars] = 0
+                sig_support_cnt[sig_vars] += 1
+
+        for smp in sorted(pheno.pheno_db):
+            if smp not in fasta_io.fasta_db:
+                continue
+            else:
+                seq = fasta_io.fasta_db[smp]
+                if support_cnt[seq] <= 2:
+                    continue
                 if seq not in converted_cleanup_allele_db[gid]:
                     converted_cleanup_allele_db[gid][seq] = cleanup_allele_idx
                     cleanup_allele_idx += 1
                 if is_sig:
                     sig_vars = __get_sig_vars(seq, var_sites_db[gid])
+                    if sig_support_cnt[sig_vars] <= 2:
+                        continue
                     if sig_vars not in converted_sig_allele_db[gid]:
                         converted_sig_allele_db[gid][sig_vars] = sig_allele_idx
                         sig_allele_idx += 1
@@ -69,6 +93,8 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 seq = fasta_io.fasta_db[smp]
             else:
                 seq = ""
+            if seq not in converted_cleanup_allele_db[gid]:
+                seq = ""
             cluster_sample_cleanup_db[smp][gid] = converted_cleanup_allele_db[gid][seq]
             if is_sig:
                 if smp not in cluster_sample_sig_db:
@@ -76,6 +102,8 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 if seq:
                     sig_vars = __get_sig_vars(seq, var_sites_db[gid])
                 else:
+                    sig_vars = ""
+                if sig_vars not in converted_sig_allele_db[gid]:
                     sig_vars = ""
                 cluster_sample_sig_db[smp][gid] = converted_sig_allele_db[gid][sig_vars]
 

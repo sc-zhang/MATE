@@ -27,6 +27,8 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
     converted_sig_allele_db = {}
     cluster_sample_cleanup_db = {}
     cluster_sample_sig_db = {}
+    cleanup_allele_idx = 1
+    sig_allele_idx = 1
 
     for fn in listdir(cleanup_aln_dir):
         is_sig = True
@@ -46,7 +48,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
             converted_sig_allele_db[gid] = {}
             sig_allele_idx = 1
 
-        # for one allele which supported samples lower than 2, mark it as absence
+        # for one allele which supported samples less than 2 or more than 95% samples, mark it as absence
         support_cnt = {}
         sig_support_cnt = {}
         for smp in sorted(pheno.pheno_db):
@@ -68,14 +70,14 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 continue
             else:
                 seq = fasta_io.fasta_db[smp]
-                if support_cnt[seq] <= 2:
+                if not (2 < support_cnt[seq] < len(pheno.pheno_db)*.95):
                     continue
                 if seq not in converted_cleanup_allele_db[gid]:
                     converted_cleanup_allele_db[gid][seq] = cleanup_allele_idx
                     cleanup_allele_idx += 1
                 if is_sig:
                     sig_vars = __get_sig_vars(seq, var_sites_db[gid])
-                    if sig_support_cnt[sig_vars] <= 2:
+                    if not (2 < sig_support_cnt[sig_vars] < len(pheno.pheno_db)*.95):
                         continue
                     if sig_vars not in converted_sig_allele_db[gid]:
                         converted_sig_allele_db[gid][sig_vars] = sig_allele_idx
@@ -106,6 +108,25 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 if sig_vars not in converted_sig_allele_db[gid]:
                     sig_vars = ""
                 cluster_sample_sig_db[smp][gid] = converted_sig_allele_db[gid][sig_vars]
+
+        missing_cnt = 0
+        for smp in cluster_sample_cleanup_db:
+            if cluster_sample_cleanup_db[smp][gid] == converted_cleanup_allele_db[gid][""]:
+                missing_cnt += 1
+        if missing_cnt >= len(cluster_sample_cleanup_db)*.95:
+            converted_cleanup_allele_db.pop(gid)
+            for smp in cluster_sample_cleanup_db:
+                cluster_sample_cleanup_db[smp].pop(gid)
+
+        missing_cnt = 0
+        if is_sig:
+            for smp in cluster_sample_sig_db:
+                if cluster_sample_sig_db[smp][gid] == converted_sig_allele_db[gid][""]:
+                    missing_cnt += 1
+            if missing_cnt >= len(cluster_sample_sig_db)*.95:
+                converted_sig_allele_db.pop(gid)
+            for smp in cluster_sample_sig_db:
+                cluster_sample_sig_db[smp].pop(gid)
 
     Msg.info("\tWriting merged matrix")
     allele_io = MatrixIO()

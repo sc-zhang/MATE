@@ -48,7 +48,10 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
             converted_sig_allele_db[gid] = {}
             sig_allele_idx = 1
 
-        # for one allele which supported samples less than 2 or more than 95% samples, mark it as absence
+        # for one allele which supported samples less than 5% or more than 95% samples, mark it as absence
+        smp_cnt = len(pheno.pheno_db)
+        lower_threshold = smp_cnt*.05
+        upper_threshold = smp_cnt*.95
         support_cnt = {}
         sig_support_cnt = {}
         for smp in sorted(pheno.pheno_db):
@@ -70,14 +73,14 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 continue
             else:
                 seq = fasta_io.fasta_db[smp]
-                if not (2 < support_cnt[seq] < len(pheno.pheno_db)*.95):
+                if not (lower_threshold < support_cnt[seq] < upper_threshold):
                     continue
                 if seq not in converted_cleanup_allele_db[gid]:
                     converted_cleanup_allele_db[gid][seq] = cleanup_allele_idx
                     cleanup_allele_idx += 1
                 if is_sig:
                     sig_vars = __get_sig_vars(seq, var_sites_db[gid])
-                    if not (2 < sig_support_cnt[sig_vars] < len(pheno.pheno_db)*.95):
+                    if not (lower_threshold < sig_support_cnt[sig_vars] < upper_threshold):
                         continue
                     if sig_vars not in converted_sig_allele_db[gid]:
                         converted_sig_allele_db[gid][sig_vars] = sig_allele_idx
@@ -113,7 +116,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
         for smp in cluster_sample_cleanup_db:
             if cluster_sample_cleanup_db[smp][gid] == converted_cleanup_allele_db[gid][""]:
                 missing_cnt += 1
-        if missing_cnt >= len(cluster_sample_cleanup_db)*.95:
+        if missing_cnt >= upper_threshold:
             converted_cleanup_allele_db.pop(gid)
             for smp in cluster_sample_cleanup_db:
                 cluster_sample_cleanup_db[smp].pop(gid)

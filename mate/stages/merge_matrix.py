@@ -16,7 +16,8 @@ def __get_sig_vars(seq, gene_var_sites_db):
     return ''.join(sig_vars)
 
 
-def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_cleanup_file, merge_sig_file):
+def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_cleanup_file, merge_sig_file, filters):
+    lower_filer, upper_filter, missing_filter = list(map(float, filters.split(':')))
     Msg.info("\tLoading phenotypes")
     pheno = PhenoIO(pheno_file)
     pheno.read_pheno()
@@ -50,8 +51,9 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
 
         # for one allele which supported samples less than 5% or more than 95% samples, mark it as absence
         smp_cnt = len(pheno.pheno_db)
-        lower_threshold = smp_cnt*.05
-        upper_threshold = smp_cnt*.95
+        lower_threshold = smp_cnt * lower_filer
+        upper_threshold = smp_cnt * upper_filter
+        missing_threshold = smp_cnt * missing_filter
         support_cnt = {}
         sig_support_cnt = {}
         for smp in sorted(pheno.pheno_db):
@@ -73,14 +75,14 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 continue
             else:
                 seq = fasta_io.fasta_db[smp]
-                if not (lower_threshold < support_cnt[seq] < upper_threshold):
+                if not (lower_threshold <= support_cnt[seq] <= upper_threshold):
                     continue
                 if seq not in converted_cleanup_allele_db[gid]:
                     converted_cleanup_allele_db[gid][seq] = cleanup_allele_idx
                     cleanup_allele_idx += 1
                 if is_sig:
                     sig_vars = __get_sig_vars(seq, var_sites_db[gid])
-                    if not (lower_threshold < sig_support_cnt[sig_vars] < upper_threshold):
+                    if not (lower_threshold <= sig_support_cnt[sig_vars] <= upper_threshold):
                         continue
                     if sig_vars not in converted_sig_allele_db[gid]:
                         converted_sig_allele_db[gid][sig_vars] = sig_allele_idx
@@ -126,7 +128,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
             for smp in cluster_sample_sig_db:
                 if cluster_sample_sig_db[smp][gid] == converted_sig_allele_db[gid][""]:
                     missing_cnt += 1
-            if missing_cnt >= len(cluster_sample_sig_db)*.95:
+            if missing_cnt > missing_threshold:
                 converted_sig_allele_db.pop(gid)
             for smp in cluster_sample_sig_db:
                 cluster_sample_sig_db[smp].pop(gid)
@@ -142,7 +144,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
     Msg.info("Finished")
 
 
-def merge_variant_matrix(pheno_dir, cleanup_aln_dir, asc_dir, merge_cleanup_dir, merge_sig_dir, thread):
+def merge_variant_matrix(pheno_dir, cleanup_aln_dir, asc_dir, merge_cleanup_dir, merge_sig_dir, filters, thread):
     pool = Pool(processes=thread)
     Msg.info("Merging data")
 
@@ -155,7 +157,7 @@ def merge_variant_matrix(pheno_dir, cleanup_aln_dir, asc_dir, merge_cleanup_dir,
         merge_sig_file = path.join(merge_sig_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.mat')
         res.append([pheno_fn, pool.apply_async(__merge_with_single_pheno,
                                                (pheno_file, cleanup_aln_dir, asc_file,
-                                                merge_cleanup_file, merge_sig_file, ))])
+                                                merge_cleanup_file, merge_sig_file, filters, ))])
     pool.close()
     pool.join()
 

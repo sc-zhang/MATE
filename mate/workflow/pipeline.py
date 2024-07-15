@@ -29,6 +29,7 @@ def pipeline(args):
     ploidy = args.ploidy
     pheno_dir = path.abspath(args.pheno)
     kmer_length = args.kmer
+    filters = args.filter
     thread = args.thread
     save_pdf = args.show
 
@@ -211,7 +212,8 @@ def pipeline(args):
     if is_finished:
         Msg.info("Variant matrix found, skipping...")
     else:
-        merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir, out_merge_cleanup_dir, out_merge_sig_dir, thread)
+        merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir,
+                             out_merge_cleanup_dir, out_merge_sig_dir, filters, thread)
 
     if save_pdf:
         Msg.info("Step%d: Visualizing variants" % cur_stage)

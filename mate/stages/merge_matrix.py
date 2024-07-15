@@ -17,7 +17,8 @@ def __get_sig_vars(seq, gene_var_sites_db):
 
 
 def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_cleanup_file, merge_sig_file, filters):
-    lower_filer, upper_filter, missing_filter = list(map(float, filters.split(':')))
+    lower_filer, upper_filter, missing_filter, min_allele_cnt = list(map(float, filters.split(':')))
+    min_allele_cnt = int(min_allele_cnt)
     Msg.info("\tLoading phenotypes")
     pheno = PhenoIO(pheno_file)
     pheno.read_pheno()
@@ -118,7 +119,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
         for smp in cluster_sample_cleanup_db:
             if cluster_sample_cleanup_db[smp][gid] == converted_cleanup_allele_db[gid][""]:
                 missing_cnt += 1
-        if missing_cnt >= upper_threshold:
+        if missing_cnt >= upper_threshold or cleanup_allele_idx - 1 < min_allele_cnt:
             converted_cleanup_allele_db.pop(gid)
             for smp in cluster_sample_cleanup_db:
                 cluster_sample_cleanup_db[smp].pop(gid)
@@ -128,10 +129,10 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
             for smp in cluster_sample_sig_db:
                 if cluster_sample_sig_db[smp][gid] == converted_sig_allele_db[gid][""]:
                     missing_cnt += 1
-            if missing_cnt > missing_threshold:
+            if missing_cnt > missing_threshold or sig_allele_idx - 1 < min_allele_cnt:
                 converted_sig_allele_db.pop(gid)
-            for smp in cluster_sample_sig_db:
-                cluster_sample_sig_db[smp].pop(gid)
+                for smp in cluster_sample_sig_db:
+                    cluster_sample_sig_db[smp].pop(gid)
 
     Msg.info("\tWriting merged matrix")
     allele_io = MatrixIO()

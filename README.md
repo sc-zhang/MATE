@@ -39,8 +39,8 @@ options:
                         Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   -k KMER, --kmer KMER  kmer length for cleanup mafft result, default=5
   -f FILTER, --filter FILTER
-                        Threshold string, "lower_threshold:upper_threshold:missing_threshold", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of samples supported, it would be dropped;
-                        missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; default=0.05:1:0.25
+                        Threshold string, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of samples supported, it would
+                        be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1
   -o OUTPUT, --output OUTPUT
                         Output directory
   -s, --show            The multi-alignment of variants would be stored as pdf file if this parameter is set

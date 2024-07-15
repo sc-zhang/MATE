@@ -19,14 +19,16 @@ def get_opts():
     groups.add_argument('-k', '--kmer', help="kmer length for cleanup mafft result, default=5",
                         type=int, default=5)
     groups.add_argument('-f', '--filter', help="Threshold string, "
-                                               "\"lower_threshold:upper_threshold:missing_threshold\",\n"
+                                               "\"lower_threshold:upper_threshold:missing_threshold:min_allele\",\n"
                                                "lower_threshold means if one allele with less than this ratio of "
                                                "samples supported, it would be dropped; "
                                                "upper_threshold means if one allele with more than this ratio of "
                                                "samples supported, it would be dropped; "
                                                "missing_threshold means if one gene with more than this ratio of "
                                                "samples marked as absence, it would be dropped; "
-                                               "default=0.05:1:0.25", default="0.05:1:0.25")
+                                               "min_allele means if one gene with less than this count of alleles "
+                                               "(ignore absence), it would be dropped; "
+                                               "default=0.05:1:0.25:1", default="0.05:1:0.25:1")
     groups.add_argument('-o', '--output', help="Output directory", required=True)
     groups.add_argument('-s', '--show', help="The multi-alignment of variants would be stored as pdf "
                                              "file if this parameter is set", action="store_true")

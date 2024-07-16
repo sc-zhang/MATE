@@ -31,17 +31,13 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
             cnt_db[kmer] += 1
         for smp in fasta_io.fasta_db:
             kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
-            support_db[smp].add(round(cnt_db[kmer]*1./seq_cnt, 2))
+            support_db[smp].add(cnt_db[kmer]*1./seq_cnt)
 
-    # drop samples with missing rate larger than 70%
     aln_db = {}
     for smp in fasta_io.fasta_db:
-        cnt = 0
-        for i in range(seq_len):
-            if fasta_io.fasta_db[smp][i] == '-':
-                cnt += 1
-        if cnt <= seq_len*.7 and min(support_db[smp]) > 0.05:
-            aln_db[smp] = fasta_io.fasta_db[smp]
+        if min(support_db[smp]) < 0.05:
+            continue
+        aln_db[smp] = fasta_io.fasta_db[smp]
 
     # if only single sample retained, return.
     retain_sample_cnt = len(aln_db)

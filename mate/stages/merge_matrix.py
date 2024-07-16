@@ -119,7 +119,7 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
         for smp in cluster_sample_cleanup_db:
             if cluster_sample_cleanup_db[smp][gid] == converted_cleanup_allele_db[gid][""]:
                 missing_cnt += 1
-        if missing_cnt >= upper_threshold or cleanup_allele_idx - 1 < min_allele_cnt:
+        if missing_cnt > missing_threshold or cleanup_allele_idx - 1 < min_allele_cnt:
             converted_cleanup_allele_db.pop(gid)
             for smp in cluster_sample_cleanup_db:
                 cluster_sample_cleanup_db[smp].pop(gid)

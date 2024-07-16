@@ -24,8 +24,8 @@ source ~/.bash_profile
 ```
 
 ## Usage
-```bash
-usage: mate.py [-h] -r REF (-g GENOME | -b BAM) [-l PLOIDY] -p PHENO [-k KMER] [-f FILTER] -o OUTPUT [-s] [-t THREAD]
+```bash                                                                                                                                                                                                                                                                                             ─╯
+usage: mate.py [-h] -r REF (-g GENOME | -b BAM) [-l PLOIDY] -p PHENO [-k KMER] [--filter FILTER] -o OUTPUT [-s] [-t THREAD]
 
 options:
   -h, --help            show this help message and exit
@@ -38,8 +38,7 @@ options:
   -p PHENO, --pheno PHENO
                         Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   -k KMER, --kmer KMER  kmer length for cleanup mafft result, default=5
-  -f FILTER, --filter FILTER
-                        Threshold string, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of samples supported, it would
+  --filter FILTER       Threshold string, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of samples supported, it would
                         be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1
   -o OUTPUT, --output OUTPUT
                         Output directory

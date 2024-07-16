@@ -14,58 +14,25 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
     consensus_seq = get_consensus_seq(fasta_io.fasta_db)
     seq_len = len(consensus_seq)
 
-    Msg.info("\tDropping low quality sequences")
-
-    # drop samples with low support kmers
-    support_db = {}
-    for smp in fasta_io.fasta_db:
-        support_db[smp] = set()
-
-    seq_cnt = len(fasta_io.fasta_db)
-    for i in range(seq_len-kmer_length+1):
-        cnt_db = {}
-        for smp in fasta_io.fasta_db:
-            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
-            if kmer not in cnt_db:
-                cnt_db[kmer] = 0
-            cnt_db[kmer] += 1
-        for smp in fasta_io.fasta_db:
-            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
-            support_db[smp].add(round(cnt_db[kmer]*1./seq_cnt, 2))
-
-    # drop samples with missing rate larger than 70%
-    aln_db = {}
-    for smp in fasta_io.fasta_db:
-        cnt = 0
-        for i in range(seq_len):
-            if fasta_io.fasta_db[smp][i] == '-':
-                cnt += 1
-        if cnt <= seq_len*.7 and min(support_db[smp]) > 0.05:
-            aln_db[smp] = fasta_io.fasta_db[smp]
-
-    # if only single sample retained, return.
-    retain_sample_cnt = len(aln_db)
-    if retain_sample_cnt <= 1:
-        Msg.info("\tToo few samples, Abort")
-        return
-
     # remove base if all samples are '-'
     remove_pos = set()
     for pos in range(seq_len):
         is_remove = True
-        for smp in aln_db:
-            if aln_db[smp][pos] != '-':
+        for smp in fasta_io.fasta_db:
+            if fasta_io.fasta_db[smp][pos] != '-':
                 is_remove = False
                 break
         if is_remove:
             remove_pos.add(pos)
 
     cleanup_aln_db = {}
-    for smp in aln_db:
+    for smp in fasta_io.fasta_db:
         cleanup_aln_db[smp] = []
         for pos in range(seq_len):
             if pos not in remove_pos:
-                cleanup_aln_db[smp].append(aln_db[smp][pos])
+                cleanup_aln_db[smp].append(fasta_io.fasta_db[smp][pos])
+
+    aln_db = {}
     for smp in cleanup_aln_db:
         aln_db[smp] = ''.join(cleanup_aln_db[smp])
 

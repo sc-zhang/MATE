@@ -30,9 +30,19 @@ def convert_cds_files_for_mafft(cds_dir, split_dir):
         fasta_io = FastaIO(cds_file)
         fasta_io.read_fasta()
         for gid in fasta_io.fasta_db:
-            if gid not in cds_db:
-                cds_db[gid] = {}
-            cds_db[gid][sample_id] = fasta_io.fasta_db[gid]
+            cds_gid = gid
+            if '/' in cds_gid:
+                cds_gid = cds_gid.replace('/', '_')
+            if '|' in cds_gid:
+                cds_gid = cds_gid.replace('|', '_')
+            if ';' in cds_gid:
+                cds_gid = cds_gid.replace(';', '_')
+            if '.' in cds_gid:
+                cds_gid = cds_gid.replace('.', '_')
+
+            if cds_gid not in cds_db:
+                cds_db[cds_gid] = {}
+            cds_db[cds_gid][sample_id] = fasta_io.fasta_db[gid]
     Msg.info("Loading finished")
 
     Msg.info("Writing split fasta files")

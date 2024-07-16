@@ -14,15 +14,19 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
     consensus_seq = get_consensus_seq(fasta_io.fasta_db)
     seq_len = len(consensus_seq)
 
-    # remove base if all samples are '-'
+    Msg.info("\tDropping low quality sites")
+    # remove base if more than 75% samples are '-' or one base supported by less than 3 samples
+    seq_cnt = len(fasta_io.fasta_db)
     remove_pos = set()
     for pos in range(seq_len):
-        is_remove = True
+        cnt_db = {}
         for smp in fasta_io.fasta_db:
-            if fasta_io.fasta_db[smp][pos] != '-':
-                is_remove = False
-                break
-        if is_remove:
+            base = fasta_io.fasta_db[smp][pos]
+            if base not in cnt_db:
+                cnt_db[base] = 0
+            cnt_db[base] += 1
+        cnt_list = [cnt_db[_] for _ in cnt_db]
+        if min(cnt_list) <= 2 or cnt_db["-"] >= seq_cnt*.75:
             remove_pos.add(pos)
 
     cleanup_aln_db = {}

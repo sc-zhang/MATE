@@ -25,7 +25,6 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     kmer_length, kmer_threshold, missing_threshold = variant_filter.split(':')
     kmer_length = int(kmer_length)
     kmer_threshold = float(kmer_threshold)
-    missing_threshold = float(missing_threshold) * seq_cnt
 
     for i in range(seq_len-kmer_length+1):
         cnt_db = {}
@@ -52,6 +51,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
 
     # remove base if more than 90% samples are '-'
     remove_pos = set()
+    missing_threshold = float(missing_threshold) * retain_sample_cnt
     for pos in range(seq_len):
         cnt = 0
         for smp in aln_db:

@@ -5,7 +5,7 @@ from pathos.multiprocessing import Pool
 from os import listdir, path
 
 
-def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_length):
+def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, variant_filter):
     Msg.info("\tLoading %s" % aln_file)
     fasta_io = FastaIO(aln_file)
     fasta_io.read_aln()
@@ -22,6 +22,11 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
         support_db[smp] = set()
 
     seq_cnt = len(fasta_io.fasta_db)
+    kmer_length, kmer_threshold, missing_threshold = variant_filter.split(':')
+    kmer_length = int(kmer_length)
+    kmer_threshold = float(kmer_threshold)
+    missing_threshold = float(missing_threshold) * seq_cnt
+
     for i in range(seq_len-kmer_length+1):
         cnt_db = {}
         for smp in fasta_io.fasta_db:
@@ -35,7 +40,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
 
     aln_db = {}
     for smp in fasta_io.fasta_db:
-        if min(support_db[smp]) < 0.05:
+        if min(support_db[smp]) < kmer_threshold:
             continue
         aln_db[smp] = fasta_io.fasta_db[smp]
 
@@ -45,15 +50,14 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
         Msg.info("\tToo few samples, Abort")
         return
 
-    # remove base if all samples are '-'
+    # remove base if more than 90% samples are '-'
     remove_pos = set()
     for pos in range(seq_len):
-        is_remove = True
+        cnt = 0
         for smp in aln_db:
             if aln_db[smp][pos] != '-':
-                is_remove = False
-                break
-        if is_remove:
+                cnt += 1
+        if cnt >= missing_threshold:
             remove_pos.add(pos)
 
     cleanup_aln_db = {}
@@ -95,7 +99,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, kmer_
     Msg.info("\tFinished")
 
 
-def variant_caller(aln_dir, var_dir, cleanup_aln_dir, kmer_length, thread):
+def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
 
@@ -106,7 +110,7 @@ def variant_caller(aln_dir, var_dir, cleanup_aln_dir, kmer_length, thread):
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
         res.append([fn, pool.apply_async(__variant_caller_for_single_file,
-                                         (aln_file, var_file, cleanup_aln_file, kmer_length, ))])
+                                         (aln_file, var_file, cleanup_aln_file, variant_filter,))])
     pool.close()
     pool.join()
 

@@ -28,8 +28,8 @@ def pipeline(args):
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
     pheno_dir = path.abspath(args.pheno)
-    kmer_length = args.kmer
-    filters = args.filter
+    variant_filter = args.variant_filter
+    allele_filter = args.allele_filter
     thread = args.thread
     save_pdf = args.show
 
@@ -159,7 +159,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("Variant results found, skipping...")
     else:
-        variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, kmer_length, thread)
+        variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, variant_filter, thread)
 
     Msg.info("Step%d: Variant classifying" % cur_stage)
     out_cla_dir = path.join(getcwd(), "%02d.ClassifiedVariants" % cur_stage)
@@ -213,7 +213,7 @@ def pipeline(args):
         Msg.info("Variant matrix found, skipping...")
     else:
         merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir,
-                             out_merge_cleanup_dir, out_merge_sig_dir, filters, thread)
+                             out_merge_cleanup_dir, out_merge_sig_dir, allele_filter, thread)
 
     if save_pdf:
         Msg.info("Step%d: Visualizing variants" % cur_stage)

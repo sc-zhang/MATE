@@ -16,19 +16,25 @@ def get_opts():
     groups.add_argument('-p', '--pheno', help="Directory contain phenotypes for association, if the "
                                               "filename of phenotype starts with \"LOW-\", means lower value is better"
                         , required=True)
-    groups.add_argument('-k', '--kmer', help="kmer length for cleanup mafft result, default=5",
-                        type=int, default=5)
-    groups.add_argument('--filter', help="Threshold string, "
-                                         "\"lower_threshold:upper_threshold:missing_threshold:min_allele\",\n"
-                                         "lower_threshold means if one allele with less than this ratio of "
-                                         "samples supported, it would be dropped; "
-                                         "upper_threshold means if one allele with more than this ratio of "
-                                         "samples supported, it would be dropped; "
-                                         "missing_threshold means if one gene with more than this ratio of "
-                                         "samples marked as absence, it would be dropped; "
-                                         "min_allele means if one gene with less than this count of alleles "
-                                         "(ignore absence), it would be dropped; "
-                                         "default=0.05:1:0.25:1", default="0.05:1:0.25:1")
+    groups.add_argument('--variant_filter', help="Threshold string for variant caller, "
+                                                 "\"kmer_length:kmer_threshold:missing_threshold\", "
+                                                 "kmer_length means the size of kmer for counting; "
+                                                 "kmer_threshold means if one sample contain low support kmer, "
+                                                 "drop it; "
+                                                 "missing_threshold means for one position if more than this ratio of "
+                                                 "samples are \"-\" at  drop it; "
+                                                 "default=5:0.05:0.9", default="5:0.05:0.9")
+    groups.add_argument('--allele_filter', help="Threshold string for final allele construction, "
+                                                "\"lower_threshold:upper_threshold:missing_threshold:min_allele\", "
+                                                "lower_threshold means if one allele with less than this ratio of "
+                                                "samples supported, it would be dropped; "
+                                                "upper_threshold means if one allele with more than this ratio of "
+                                                "samples supported, it would be dropped; "
+                                                "missing_threshold means if one gene with more than this ratio of "
+                                                "samples marked as absence, it would be dropped; "
+                                                "min_allele means if one gene with less than this count of alleles "
+                                                "(ignore absence), it would be dropped; "
+                                                "default=0.05:1:0.25:1", default="0.05:1:0.25:1")
     groups.add_argument('-o', '--output', help="Output directory", required=True)
     groups.add_argument('-s', '--show', help="The multi-alignment of variants would be stored as pdf "
                                              "file if this parameter is set", action="store_true")

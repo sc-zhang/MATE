@@ -25,7 +25,7 @@ source ~/.bash_profile
 
 ## Usage
 ```bash                                                                                                                                                                                                                                                                                             ─╯
-usage: mate.py [-h] -r REF (-g GENOME | -b BAM) [-l PLOIDY] -p PHENO [-k KMER] [--filter FILTER] -o OUTPUT [-s] [-t THREAD]
+usage: mate.py [-h] -r REF (-g GENOME | -b BAM) [-l PLOIDY] -p PHENO [--variant_filter VARIANT_FILTER] [--allele_filter ALLELE_FILTER] -o OUTPUT [-s] [-t THREAD]
 
 options:
   -h, --help            show this help message and exit
@@ -37,9 +37,12 @@ options:
                         Ploidy of genomes, only effect with -g default=2
   -p PHENO, --pheno PHENO
                         Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
-  -k KMER, --kmer KMER  kmer length for cleanup mafft result, default=5
-  --filter FILTER       Threshold string, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of samples supported, it would
-                        be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1
+  --variant_filter VARIANT_FILTER
+                        Threshold string for variant caller, "kmer_length:kmer_threshold:missing_threshold", kmer_length means the size of kmer for counting; kmer_threshold means if one sample contain low support kmer, drop it; missing_threshold means for one position if more than this ratio of samples
+                        are "-" at drop it; default=5:0.05:0.9
+  --allele_filter ALLELE_FILTER
+                        Threshold string for final allele construction, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of
+                        samples supported, it would be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1
   -o OUTPUT, --output OUTPUT
                         Output directory
   -s, --show            The multi-alignment of variants would be stored as pdf file if this parameter is set

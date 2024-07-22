@@ -78,6 +78,9 @@ def __merge_with_single_pheno(pheno_file, cleanup_aln_dir, asc_file, merge_clean
                 seq = fasta_io.fasta_db[smp]
                 if not (lower_threshold <= support_cnt[seq] <= upper_threshold):
                     continue
+                # Drop empty sequences
+                if not seq:
+                    continue
                 if seq not in converted_cleanup_allele_db[gid]:
                     converted_cleanup_allele_db[gid][seq] = cleanup_allele_idx
                     cleanup_allele_idx += 1

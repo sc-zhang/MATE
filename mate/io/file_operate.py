@@ -243,3 +243,50 @@ class AssociateIO:
                             var_db[gid][sample] = []
                         var_db[gid][sample].append(var)
         return var_db
+
+
+class BedIO:
+    def __init__(self, bed_file):
+        self.__bed_file = bed_file
+        self.bed_db = {}
+        self.chrs = set()
+        self.__regions = {}
+
+    def read_bed(self):
+        """
+        self.bed_db[gid] = [chrn, sp, ep]
+        sp is converted to 0-based, region is [sp, ep)
+        """
+
+        with open(self.__bed_file, 'r') as fin:
+            for line in fin:
+                data = line.strip().split()
+                chrn = data[0]
+                sp = int(data[1])-1
+                ep = int(data[2])
+                gn = data[3]
+                direct = data[4]
+                self.bed_db[gn] = [chrn, sp, ep, direct]
+                if chrn not in self.__regions:
+                    self.__regions[chrn] = []
+                self.__regions[chrn].append([sp, ep, gn])
+
+        for chrn in self.__regions:
+            self.__regions[chrn] = sorted(self.__regions[chrn])
+        self.chrs = set(self.__regions.keys())
+
+    def get_gid(self, chrn, pos):
+        s = 0
+        e = len(self.__regions[chrn]) - 1
+        while s <= e:
+            mid = (s+e)//2
+            if self.__regions[chrn][mid][0] < pos:
+                s = mid+1
+            elif self.__regions[chrn][mid][0] > pos:
+                e = mid-1
+            else:
+                return self.__regions[chrn][mid][2]
+        if self.__regions[chrn][e][0] <= pos < self.__regions[chrn][e][1]:
+            return self.__regions[chrn][e][2]
+        else:
+            return ""

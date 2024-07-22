@@ -16,15 +16,26 @@ def get_sample_set(in_dir, filetype="genome"):
 
 def pipeline(args):
     start_time = time()
-    ref_cds = path.abspath(args.ref)
+
+    ref_cds = ""
+    ref_bed = ""
     if args.genome:
         genome_dir = path.abspath(args.genome)
+        if not args.cds:
+            Msg.error("Fatal error: --cds must be set when using genome mode")
+            exit(-1)
+        ref_cds = path.abspath(args.cds)
     else:
         genome_dir = ""
     if args.bam:
         bam_dir = path.abspath(args.bam)
+        if not args.bed:
+            Msg.error("Fatal error: --gff3 must be set when using bam mode")
+            exit(-1)
+        ref_bed = path.abspath(args.bed)
     else:
         bam_dir = ""
+
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
     pheno_dir = path.abspath(args.pheno)
@@ -104,7 +115,7 @@ def pipeline(args):
         if is_finished:
             Msg.info("CDS are extracted, skipping...")
         else:
-            bam_convertor = BAM2CDS(bam_dir, ref_cds, extract_cds_dir, thread)
+            bam_convertor = BAM2CDS(bam_dir, ref_bed, extract_cds_dir, thread)
             bam_convertor.convert()
 
     Msg.info("Step%d: Converting cds" % cur_stage)

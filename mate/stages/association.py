@@ -5,6 +5,10 @@ from os import listdir, path
 from scipy.stats import levene, ttest_ind
 from outliers import smirnov_grubbs as grubbs
 from numpy import array, average, std
+import warnings
+
+
+warnings.filterwarnings("error")
 
 
 def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better):
@@ -50,6 +54,8 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better
             # # remove outliers with grubbs test and get best and second best pheno list for comparison
             cur_site_pheno_list = []
             for pheno_idx in cur_site_pheno_db:
+                if std(cur_site_pheno_db[pheno_idx]) == 0:
+                    continue
                 clean_pheno = list(grubbs.test(array(cur_site_pheno_db[pheno_idx]), alpha=0.05))
                 cur_site_pheno_list.append([average(clean_pheno), pheno_idx, clean_pheno])
             if len(cur_site_pheno_list) < 2:
@@ -60,7 +66,10 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better
 
             if len(best_pheno) <= 1 or len(sec_best_pheno) <= 1:
                 continue
-            _, levene_pvalue = levene(best_pheno, sec_best_pheno)
+            try:
+                _, levene_pvalue = levene(best_pheno, sec_best_pheno)
+            except RuntimeWarning:
+                continue
             if levene_pvalue > 0.05:
                 equal_var = True
             else:

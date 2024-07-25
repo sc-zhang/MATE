@@ -54,9 +54,11 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better
             # # remove outliers with grubbs test and get best and second best pheno list for comparison
             cur_site_pheno_list = []
             for pheno_idx in cur_site_pheno_db:
-                if std(cur_site_pheno_db[pheno_idx]) == 0:
-                    continue
-                clean_pheno = list(grubbs.test(array(cur_site_pheno_db[pheno_idx]), alpha=0.05))
+                try:
+                    clean_pheno = list(grubbs.test(array(cur_site_pheno_db[pheno_idx]), alpha=0.05))
+
+                except RuntimeWarning:
+                    clean_pheno = cur_site_pheno_db[pheno_idx]
                 cur_site_pheno_list.append([average(clean_pheno), pheno_idx, clean_pheno])
             if len(cur_site_pheno_list) < 2:
                 continue
@@ -74,7 +76,10 @@ def __associate_with_single_pheno(pheno_file, cla_dir, asc_file, is_lower_better
                 equal_var = True
             else:
                 equal_var = False
-            t_pvalue = ttest_ind(best_pheno, sec_best_pheno, equal_var=equal_var).pvalue
+            try:
+                t_pvalue = ttest_ind(best_pheno, sec_best_pheno, equal_var=equal_var).pvalue
+            except RuntimeWarning:
+                continue
             if t_pvalue <= 0.05:
                 variants.append(var_io.variants[i])
                 stat_info.append([levene_pvalue, t_pvalue,

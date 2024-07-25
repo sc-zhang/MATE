@@ -25,21 +25,22 @@ source ~/.bash_profile
 
 ## Usage
 ```bash                                                                                                                                                                                                                                                                                             ─╯
-usage: mate.py [-h] -r REF (-g GENOME | -b BAM) [-l PLOIDY] -p PHENO [--variant_filter VARIANT_FILTER] [--allele_filter ALLELE_FILTER] -o OUTPUT [-s] [-t THREAD]
+usage: mate.py [-h] (-g GENOME | -b BAM) [--cds CDS] [--bed BED] [-l PLOIDY] -p PHENO [--variant_filter VARIANT_FILTER] [--allele_filter ALLELE_FILTER] -o OUTPUT [-s] [-t THREAD]
 
 options:
   -h, --help            show this help message and exit
-  -r REF, --ref REF     Reference cds file
   -g GENOME, --genome GENOME
                         Directory contain all genomes
   -b BAM, --bam BAM     Directory contain all bam files by mapping Reseq reads to reference cds
+  --cds CDS             Reference cds file of candidate genes, only with -g/--genome
+  --bed BED             Reference bed file of candidate genes, only effect with -b/--bam
   -l PLOIDY, --ploidy PLOIDY
-                        Ploidy of genomes, only effect with -g default=2
+                        Ploidy of genomes, only effect with -g, default=2
   -p PHENO, --pheno PHENO
                         Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   --variant_filter VARIANT_FILTER
-                        Threshold string for variant caller, "kmer_length:kmer_threshold:missing_threshold", kmer_length means the size of kmer for counting; kmer_threshold means if one sample contain low support kmer, drop it; missing_threshold means for one position if more than this ratio of samples
-                        are "-" at drop it; default=5:0.05:0.9
+                        Threshold string for variant caller, "kmer_length:kmer_threshold:lower_threshold:missing_threshold", kmer_length means the size of kmer for counting; kmer_threshold means if one kmer at one position among samples, supported by less than this ratio of samples, mark it as low
+                        support kmer; lower_threshold means if one sample contain more than this count of low support kmers, drop it; missing_threshold means for one position if more than this ratio of samples are "-" at drop it; default=5:0.05:0.9
   --allele_filter ALLELE_FILTER
                         Threshold string for final allele construction, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of
                         samples supported, it would be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1

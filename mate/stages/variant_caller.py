@@ -19,12 +19,13 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     # drop samples with low support kmers
     support_db = {}
     for smp in fasta_io.fasta_db:
-        support_db[smp] = set()
+        support_db[smp] = []
 
     seq_cnt = len(fasta_io.fasta_db)
-    kmer_length, kmer_threshold, missing_threshold = variant_filter.split(':')
+    kmer_length, kmer_threshold, lower_threshold, missing_threshold = variant_filter.split(':')
     kmer_length = int(kmer_length)
     kmer_threshold = float(kmer_threshold)
+    lower_threshold = float(lower_threshold)
 
     for i in range(seq_len-kmer_length+1):
         cnt_db = {}
@@ -35,11 +36,15 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
             cnt_db[kmer] += 1
         for smp in fasta_io.fasta_db:
             kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
-            support_db[smp].add(cnt_db[kmer]*1./seq_cnt)
+            support_db[smp].append(cnt_db[kmer]*1./seq_cnt)
 
     aln_db = {}
     for smp in fasta_io.fasta_db:
-        if min(support_db[smp]) < kmer_threshold:
+        lower_cnt = 0
+        for support_ratio in support_db[smp]:
+            if support_ratio < kmer_threshold:
+                lower_cnt += 1
+        if lower_cnt < len(support_db[smp])*lower_threshold:
             continue
         aln_db[smp] = fasta_io.fasta_db[smp]
 

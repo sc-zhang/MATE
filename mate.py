@@ -27,7 +27,7 @@ def get_opts():
                                                  "low support kmers, drop it; "
                                                  "missing_threshold means for one position if more than this ratio of "
                                                  "samples are \"-\" at  drop it; "
-                                                 "default=5:0.05:0.9", default="5:0.05:0.9")
+                                                 "default=5:0.05:0.2:0.9", default="5:0.05:0.2:0.9")
     groups.add_argument('--allele_filter', help="Threshold string for final allele construction, "
                                                 "\"lower_threshold:upper_threshold:missing_threshold:min_allele\", "
                                                 "lower_threshold means if one allele with less than this ratio of "

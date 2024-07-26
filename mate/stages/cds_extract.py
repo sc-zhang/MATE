@@ -13,14 +13,8 @@ class CDSExtract:
 
     @staticmethod
     def __reverse_seq(seq):
-        rev_seq = ""
         base_db = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-        for base in seq[::-1]:
-            if base in base_db:
-                rev_seq += base_db[base]
-            else:
-                rev_seq += base
-        return rev_seq
+        return ''.join([base_db[_] if _ in base_db else _ for _ in seq[::-1]])
 
     def __extract_cds(self, in_gff3, in_fa, out_cds_file):
         Msg.info("\tLoading genome %s" % in_fa)

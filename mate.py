@@ -18,16 +18,13 @@ def get_opts():
                                               "filename of phenotype starts with \"LOW-\", means lower value is better"
                         , required=True)
     groups.add_argument('--variant_filter', help="Threshold string for variant caller, "
-                                                 "\"kmer_length:kmer_threshold:lower_threshold:missing_threshold\", "
-                                                 "kmer_length means the size of kmer for counting; "
-                                                 "kmer_threshold means if one kmer at one position among samples, "
-                                                 "supported by less than this ratio of samples, mark it as low support "
-                                                 "kmer; "
-                                                 "lower_threshold means if one sample contain more than this count of "
-                                                 "low support kmers, drop it; "
+                                                 "\"kmer_length:lower_threshold:missing_threshold\", "
+                                                 "kmer_length means the size of kmer; "
+                                                 "lower_threshold means if one position contain a kmer with less than"
+                                                 "this ratio of samples support, drop it; "
                                                  "missing_threshold means for one position if more than this ratio of "
                                                  "samples are \"-\" at  drop it; "
-                                                 "default=5:0.05:0.2:0.9", default="5:0.05:0.2:0.9")
+                                                 "default=5:0.05:0.9", default="5:0.05:0.9")
     groups.add_argument('--allele_filter', help="Threshold string for final allele construction, "
                                                 "\"lower_threshold:upper_threshold:missing_threshold:min_allele\", "
                                                 "lower_threshold means if one allele with less than this ratio of "

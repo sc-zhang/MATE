@@ -22,11 +22,12 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
         support_db[smp] = []
 
     seq_cnt = len(fasta_io.fasta_db)
-    kmer_length, kmer_threshold, lower_threshold, missing_threshold = variant_filter.split(':')
+    kmer_length, lower_threshold, missing_threshold = variant_filter.split(':')
     kmer_length = int(kmer_length)
-    kmer_threshold = float(kmer_threshold)
     lower_threshold = float(lower_threshold)
 
+    # remove base if more than lower_threshold ratio of samples with lower supported kmer at this position
+    remove_pos = set()
     for i in range(seq_len-kmer_length+1):
         cnt_db = {}
         for smp in fasta_io.fasta_db:
@@ -34,43 +35,27 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
             if kmer not in cnt_db:
                 cnt_db[kmer] = 0
             cnt_db[kmer] += 1
-        for smp in fasta_io.fasta_db:
-            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
-            support_db[smp].append(cnt_db[kmer]*1./seq_cnt)
+        for kmer in cnt_db:
+            if cnt_db[kmer]*1./seq_cnt < lower_threshold:
+                remove_pos.add(i)
 
-    aln_db = {}
-    for smp in fasta_io.fasta_db:
-        lower_cnt = 0
-        for support_ratio in support_db[smp]:
-            if support_ratio < kmer_threshold:
-                lower_cnt += 1
-        if lower_cnt < len(support_db[smp])*lower_threshold:
-            continue
-        aln_db[smp] = fasta_io.fasta_db[smp]
-
-    # if only single sample retained, return.
-    retain_sample_cnt = len(aln_db)
-    if retain_sample_cnt <= 1:
-        Msg.info("\tToo few samples, Abort")
-        return
-
-    # remove base if more than 90% samples are '-'
-    remove_pos = set()
-    missing_threshold = float(missing_threshold) * retain_sample_cnt
+    # remove base if more than missing_threshold ratio of samples with '-'
+    missing_threshold = float(missing_threshold) * seq_cnt
     for pos in range(seq_len):
         cnt = 0
-        for smp in aln_db:
-            if aln_db[smp][pos] != '-':
+        for smp in fasta_io.fasta_db:
+            if fasta_io.fasta_db[smp][pos] != '-':
                 cnt += 1
         if cnt >= missing_threshold:
             remove_pos.add(pos)
 
     cleanup_aln_db = {}
-    for smp in aln_db:
+    aln_db = {}
+    for smp in fasta_io.fasta_db:
         cleanup_aln_db[smp] = []
         for pos in range(seq_len):
             if pos not in remove_pos:
-                cleanup_aln_db[smp].append(aln_db[smp][pos])
+                cleanup_aln_db[smp].append(fasta_io.fasta_db[smp][pos])
     for smp in cleanup_aln_db:
         aln_db[smp] = ''.join(cleanup_aln_db[smp])
 

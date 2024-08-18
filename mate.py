@@ -6,14 +6,17 @@ from mate.workflow.pipeline import pipeline
 def get_opts():
     groups = argparse.ArgumentParser()
 
-    mut_group = groups.add_mutually_exclusive_group(required=True)
-    mut_group.add_argument('-g', '--genome', help="Directory contain all genomes")
-    mut_group.add_argument('-b', '--bam', help="Directory contain all bam files by mapping Reseq reads to "
-                                               "reference cds")
+    mut_input_group = groups.add_mutually_exclusive_group(required=True)
+    mut_input_group.add_argument('-g', '--genome', help="Directory contain all genomes")
+    mut_input_group.add_argument('-b', '--bam', help="Directory contain all bam files by mapping "
+                                                     "Reseq reads to reference cds")
     # groups.add_argument('-g', '--genome', help="Directory contain all genomes", required=True)
-    groups.add_argument('--cds', help="Reference cds file of candidate genes, can be set with -g/--genome "
-                                      "and -b/--bam")
-    groups.add_argument('--bed', help="Reference bed file of candidate genes, only effect with -b/--bam")
+    mut_ref_group = groups.add_mutually_exclusive_group(required=True)
+    mut_ref_group.add_argument('--cds', help="Reference cds file of candidate genes, can be set with "
+                                             "-g/--genome and -b/--bam")
+    mut_ref_group.add_argument('--bed', help="Reference bed file of candidate genes, only effect with "
+                                             "-b/--bam")
+
     groups.add_argument('-l', '--ploidy', help="Ploidy of genomes, only effect with -g, default=2", type=int, default=2)
     groups.add_argument('-p', '--pheno', help="Directory contain phenotypes for association, if the "
                                               "filename of phenotype starts with \"LOW-\", means lower value is better"

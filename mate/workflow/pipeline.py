@@ -30,7 +30,7 @@ def pipeline(args):
     if args.bam:
         bam_dir = path.abspath(args.bam)
         if not args.bed:
-            Msg.error("Fatal error: --gff3 must be set when using bam mode")
+            Msg.error("Fatal error: --bed must be set when using bam mode")
             exit(-1)
         ref_bed = path.abspath(args.bed)
     else:

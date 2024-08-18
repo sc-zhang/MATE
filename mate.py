@@ -11,7 +11,8 @@ def get_opts():
     mut_group.add_argument('-b', '--bam', help="Directory contain all bam files by mapping Reseq reads to "
                                                "reference cds")
     # groups.add_argument('-g', '--genome', help="Directory contain all genomes", required=True)
-    groups.add_argument('--cds', help="Reference cds file of candidate genes, only with -g/--genome")
+    groups.add_argument('--cds', help="Reference cds file of candidate genes, can be set with -g/--genome "
+                                      "and -b/--bam")
     groups.add_argument('--bed', help="Reference bed file of candidate genes, only effect with -b/--bam")
     groups.add_argument('-l', '--ploidy', help="Ploidy of genomes, only effect with -g, default=2", type=int, default=2)
     groups.add_argument('-p', '--pheno', help="Directory contain phenotypes for association, if the "

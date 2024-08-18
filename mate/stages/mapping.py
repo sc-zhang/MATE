@@ -23,11 +23,17 @@ def mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread):
     for fn in listdir(genome_dir):
         genome_file = path.join(genome_dir, fn)
         gff3_file = path.join(gmap_out_gff3_dir, '.'.join(fn.split('.')[:-1])+".gff3")
+        ferr = open(gff3_file+'.log', 'w')
+
         Msg.info("\tBuild %s" % fn)
         runner.set_cmd("gmap_build -D . -d %s_DB -t %d %s" % (fn, thread, genome_file))
         runner.run()
+        ferr.write("%s\n" % runner.get_err())
+
         Msg.info("\tGmap %s" % fn)
         runner.set_cmd("gmap -D . -d %s_DB -f %d -n 1 -t %d %s > %s" % (fn, ploidy, thread, ref_cds, gff3_file))
         runner.run()
+        ferr.write("%s\n" % runner.get_err())
+        ferr.close()
     Msg.info("GMAP finished")
     chdir(cur_dir)

@@ -14,6 +14,7 @@ def get_sample_set(in_dir, filetype="genome"):
         sample_set.add('.'.join(fn.split('.')[:-1]))
     return sample_set
 
+
 def pipeline(args):
     start_time = time()
 
@@ -29,10 +30,13 @@ def pipeline(args):
         genome_dir = ""
     if args.bam:
         bam_dir = path.abspath(args.bam)
-        if not args.bed:
-            Msg.error("Fatal error: --bed must be set when using bam mode")
+        if (not args.bed) and (not args.cds):
+            Msg.error("Fatal error: --bed or --cds must be set when using bam mode")
             exit(-1)
-        ref_bed = path.abspath(args.bed)
+        if args.bed:
+            ref_bed = path.abspath(args.bed)
+        if args.cds:
+            ref_cds = path.abspath(args.cds)
     else:
         bam_dir = ""
 
@@ -115,7 +119,10 @@ def pipeline(args):
         if is_finished:
             Msg.info("CDS are extracted, skipping...")
         else:
-            bam_convertor = BAM2CDS(bam_dir, ref_bed, extract_cds_dir, thread)
+            if ref_cds:
+                bam_convertor = BAM2CDS(bam_dir, ref_cds, extract_cds_dir, "cds", thread)
+            else:
+                bam_convertor = BAM2CDS(bam_dir, ref_bed, extract_cds_dir, "bed", thread)
             bam_convertor.convert()
 
     Msg.info("Step%d: Converting cds" % cur_stage)
@@ -229,8 +236,10 @@ def pipeline(args):
     if save_pdf:
         Msg.info("Step%d: Visualizing variants" % cur_stage)
         out_vis_var_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "01.Variants")
-        out_vis_cleanup_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "01.CleanupAlleles")
-        out_vis_sig_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles", "02.SignificantAlleles")
+        out_vis_cleanup_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles",
+                                               "01.CleanupAlleles")
+        out_vis_sig_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles",
+                                           "02.SignificantAlleles")
         cur_stage += 1
         is_finished = True
         if not path.exists(out_vis_var_dir):
@@ -271,4 +280,4 @@ def pipeline(args):
     Msg.info("Return %s" % cur_dir)
     chdir(cur_dir)
     end_time = time()
-    Msg.info("All done, cost: %.2f sec." % (end_time-start_time))
+    Msg.info("All done, cost: %.2f sec." % (end_time - start_time))

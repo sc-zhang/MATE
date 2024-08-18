@@ -1,4 +1,4 @@
-from os import popen
+from subprocess import Popen, PIPE
 
 
 class DepCheck:
@@ -7,10 +7,8 @@ class DepCheck:
 
     @staticmethod
     def check(cmd):
-        res = []
-        with popen(cmd, 'r') as fin:
-            for line in fin:
-                res.append(line.strip())
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True, encoding='utf-8')
+        res, _= p.communicate()
 
         if res:
             return True

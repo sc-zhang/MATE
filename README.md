@@ -43,7 +43,8 @@ options:
                         than this ratio of samples are "-" at drop it; default=5:0.05:0.9
   --allele_filter ALLELE_FILTER
                         Threshold string for final allele construction, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped; upper_threshold means if one allele with more than this ratio of
-                        samples supported, it would be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0.05:1:0.25:1
+                        samples supported, it would be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped; min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0:1:1:1 (no
+                        filter)
   -o OUTPUT, --output OUTPUT
                         Output directory
   -s, --show            The multi-alignment of variants would be stored as pdf file if this parameter is set

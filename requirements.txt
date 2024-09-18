@@ -1,4 +1,4 @@
-pathos==0.3.0
+pathos>=0.3.0
 outlier_utils
 scipy
 bioplotz

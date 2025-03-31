@@ -56,6 +56,8 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
         for pos in range(seq_len):
             if pos not in remove_pos:
                 cleanup_aln_db[smp].append(fasta_io.fasta_db[smp][pos])
+            else:
+                cleanup_aln_db[smp].append('-')
     for smp in cleanup_aln_db:
         aln_db[smp] = ''.join(cleanup_aln_db[smp])
 

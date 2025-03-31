@@ -46,7 +46,8 @@ def pipeline(args):
     variant_filter = args.variant_filter
     allele_filter = args.allele_filter
     thread = args.thread
-    save_pdf = args.show
+    save_pic = args.show
+    pic_fmt = args.format
 
     cur_dir = path.abspath(getcwd())
     if not path.exists(out_dir):
@@ -233,7 +234,7 @@ def pipeline(args):
         merge_variant_matrix(pheno_dir, out_aln_dir, out_asc_dir,
                              out_merge_cleanup_dir, out_merge_sig_dir, allele_filter, thread)
 
-    if save_pdf:
+    if save_pic:
         Msg.info("Step%d: Visualizing variants" % cur_stage)
         out_vis_var_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "01.Variants")
         out_vis_cleanup_allele_dir = path.join(getcwd(), "%02d.Visualization" % cur_stage, "02.Alleles",
@@ -251,7 +252,7 @@ def pipeline(args):
         if is_finished:
             Msg.info("Visualization of variants found, skipping")
         else:
-            draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, thread)
+            draw_variant_sites_in_association(out_aln_dir, out_asc_dir, out_vis_var_dir, pic_fmt, thread)
 
         is_finished = True
         if not path.exists(out_vis_cleanup_allele_dir):

@@ -6,7 +6,6 @@ from mate.io.message import Message as Msg
 from os import listdir, path, makedirs
 from pathos.multiprocessing import Pool
 
-
 mpl.use('Agg')
 
 
@@ -23,14 +22,16 @@ def __draw_alleles(mat_file, pic_dir):
             seq_len = len(allele_db[gene_id][allele_id])
             break
 
-        fig_height = max(int(seq_len/200.*len(allele_db[gene_id])/4), 5)
+        fig_height = max(int(seq_len / 200. * len(allele_db[gene_id]) / 4), 5)
         plt.figure(figsize=(20, fig_height), dpi=100)
         plt.rcParams['font.sans-serif'] = 'Courier New'
         multialign(allele_db[gene_id],
                    base_per_line=200,
-                   match_color='lightgrey',
-                   mismatch_color='blue',
-                   mismatch_background_color='lightskyblue')
+                   color_mode="match",
+                   color_kws={
+                       "match_color": 'lightgrey',
+                       "mismatch_color": 'blue',
+                       "mismatch_background_color": 'lightskyblue'})
         pic_file = path.join(pic_dir, "%s.pdf" % gene_id)
         plt.savefig(pic_file, bbox_inches='tight')
         plt.close('all')
@@ -53,6 +54,6 @@ def draw_alleles(mat_dir, pic_dir, thread):
         try:
             r.get()
         except Exception as e:
-            Msg.warn("\tException caught with {}: {}". format(asc_fn, e))
+            Msg.warn("\tException caught with {}: {}".format(asc_fn, e))
 
     Msg.info("Visualization finished")

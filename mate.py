@@ -41,8 +41,12 @@ def get_opts():
                                                 "(ignore absence), it would be dropped; "
                                                 "default=0:1:1:1 (no filter)", default="0:1:1:1")
     groups.add_argument('-o', '--output', help="Output directory", required=True)
-    groups.add_argument('-s', '--show', help="The multi-alignment of variants would be stored as pdf "
-                                             "file if this parameter is set", action="store_true")
+    groups.add_argument('-s', '--show', help="The multi-alignment of variants would be stored if this "
+                                             "parameter is set",
+                        action="store_true")
+    groups.add_argument('--format',
+                        help="The picture format of multi-alignment, only effect when parameter 'show' is setting, "
+                             "default=pdf", default="pdf")
     groups.add_argument('-t', '--thread', help="Thread number, default=10", type=int, default=10)
 
     return groups.parse_args()

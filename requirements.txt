@@ -1,5 +1,7 @@
 pathos>=0.3.0
 outlier_utils
 scipy
-bioplotz
+bioplotz>=0.1.0.dev16
 pysam
+numpy
+matplotlib

@@ -138,8 +138,15 @@ class BAM2CDS:
                     info = match_db[gene_name][i]
                     if len(info) == 0:
                         best_base = ''
+                    elif len(info) == 1:
+                        best_base = sorted(info)[0]
                     else:
-                        best_base = sorted(info, key=lambda x: info[x], reverse=True)[0]
+                        sorted_info = sorted(info, key=lambda x: info[x], reverse=True)
+                        # best_base = sorted(info, key=lambda x: info[x], reverse=True)[0]
+                        if info[sorted_info[1]] > 0.5 * info[sorted_info[0]]:
+                            best_base = ''
+                        else:
+                            best_base = sorted_info[0]
                     seq.append(best_base)
                 seq = ''.join(seq)
 

@@ -17,7 +17,8 @@ def get_opts():
     mut_ref_group.add_argument('--bed', help="Reference bed file of candidate genes, only effect with "
                                              "-b/--bam")
 
-    groups.add_argument('-l', '--ploidy', help="Ploidy of genomes, only effect with -g, default=2", type=int, default=2)
+    groups.add_argument('-l', '--ploidy', help="Ploidy of genomes, only effect with -g, default=1",
+                        type=int, default=1)
     groups.add_argument('-p', '--pheno', help="Directory contain phenotypes for association, if the "
                                               "filename of phenotype starts with \"LOW-\", means lower value is better"
                         , required=True)

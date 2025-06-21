@@ -17,13 +17,13 @@ def mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread):
     ref_cds = path.abspath(ref_cds)
     genome_dir = path.abspath(genome_dir)
     cur_dir = path.abspath(getcwd())
-    
+
     Msg.info("Entering %s" % gmap_out_gff3_dir)
     chdir(gmap_out_gff3_dir)
     for fn in listdir(genome_dir):
         genome_file = path.join(genome_dir, fn)
-        gff3_file = path.join(gmap_out_gff3_dir, '.'.join(fn.split('.')[:-1])+".gff3")
-        ferr = open(gff3_file+'.log', 'w')
+        gff3_file = path.join(gmap_out_gff3_dir, '.'.join(fn.split('.')[:-1]) + ".gff3")
+        ferr = open(gff3_file + '.log', 'w')
 
         Msg.info("\tBuild %s" % fn)
         runner.set_cmd("gmap_build -D . -d %s_DB -t %d %s" % (fn, thread, genome_file))
@@ -31,7 +31,13 @@ def mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread):
         ferr.write("%s\n" % runner.get_err())
 
         Msg.info("\tGmap %s" % fn)
-        runner.set_cmd("gmap -D . -d %s_DB -f %d -n 1 -t %d %s > %s" % (fn, ploidy, thread, ref_cds, gff3_file))
+        fsize = path.getsize(fn)
+        if fsize > 2 ** 32:
+            gmap_program = "gmapl"
+        else:
+            gmap_program = "gmap"
+        runner.set_cmd("%s -D . -d %s_DB -f 2 -n %d -t %d %s > %s" %
+                       (gmap_program, fn, ploidy, thread, ref_cds, gff3_file))
         runner.run()
         ferr.write("%s\n" % runner.get_err())
         ferr.close()

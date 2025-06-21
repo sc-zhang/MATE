@@ -31,7 +31,7 @@ def mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread):
         ferr.write("%s\n" % runner.get_err())
 
         Msg.info("\tGmap %s" % fn)
-        fsize = path.getsize(fn)
+        fsize = path.getsize(genome_file)
         if fsize > 2 ** 32:
             gmap_program = "gmapl"
         else:

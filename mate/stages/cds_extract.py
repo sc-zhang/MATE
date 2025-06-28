@@ -2,6 +2,7 @@ from os import path, listdir
 from mate.io.file_operate import FastaIO
 from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
+from mate.base.cds_check import CDS_Check, CDS_Type
 
 
 class CDSExtract:
@@ -58,12 +59,14 @@ class CDSExtract:
                         cds = ""
                         for sp, ep in region_db[gid]['cds']:
                             cds += fasta_io.fasta_db[chrn][sp - 1: ep]
-                        fout.write('>%s\n%s\n' % (gid, cds))
+                        if CDS_Check.check_cds(cds.upper()) == CDS_Type.VALID:
+                            fout.write('>%s\n%s\n' % (gid, cds))
                     else:
                         cds = ""
                         for sp, ep in region_db[gid]['cds']:
                             cds += self.__reverse_seq(fasta_io.fasta_db[chrn][sp - 1: ep])
-                        fout.write('>%s\n%s\n' % (gid, cds))
+                        if CDS_Check.check_cds(cds.upper()) == CDS_Type.VALID:
+                            fout.write('>%s\n%s\n' % (gid, cds))
 
         Msg.info("\tCDS extracted")
 

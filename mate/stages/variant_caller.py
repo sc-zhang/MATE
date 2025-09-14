@@ -35,16 +35,19 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
             if kmer not in cnt_db:
                 cnt_db[kmer] = 0
             cnt_db[kmer] += 1
+        max_cnt = 0
         for kmer in cnt_db:
-            if cnt_db[kmer]*1./seq_cnt < lower_threshold:
-                remove_pos.add(i)
+            if cnt_db[kmer] > max_cnt:
+                max_cnt = cnt_db[kmer]
+        if max_cnt*1./seq_cnt < lower_threshold:
+            remove_pos.add(i)
 
     # remove base if more than missing_threshold ratio of samples with '-'
     missing_threshold = float(missing_threshold) * seq_cnt
     for pos in range(seq_len):
         cnt = 0
         for smp in fasta_io.fasta_db:
-            if fasta_io.fasta_db[smp][pos] != '-':
+            if fasta_io.fasta_db[smp][pos] == '-':
                 cnt += 1
         if cnt >= missing_threshold:
             remove_pos.add(pos)

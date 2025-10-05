@@ -40,9 +40,9 @@ options:
                         Directory contain all genomes
   -b BAM, --bam BAM     Directory contain all bam files by mapping Reseq reads to reference cds
   --cds CDS             Reference cds file of candidate genes, can be set with -g/--genome and -b/--bam
-  --bed BED             Reference bed file of candidate genes, only effect with -b/--bam
+  --bed BED             Reference bed file of candidate genes, only effect with -b/--bam, tab separated, should contain 4 columns, [ChrID Start End GeneID Direction]
   -l PLOIDY, --ploidy PLOIDY
-                        Ploidy of genomes, only effect with -g, default=2
+                        Ploidy of genomes, only effect with -g, default=1
   -p PHENO, --pheno PHENO
                         Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   --variant_filter VARIANT_FILTER

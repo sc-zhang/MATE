@@ -172,8 +172,7 @@ class BAM2CDS:
             sample_id = '.'.join(fn.split('.')[:-1])
             bam_file = path.join(self.__in_bam_dir, fn)
             out_cds = path.join(self.__out_cds_dir, "%s.cds" % sample_id)
-            self.__bam2cds(bam_file, self.__ref_file, self.__ref_type, out_cds)
-            # res.append([fn, pool.apply_async(self.__bam2cds, (bam_file, self.__ref_file, self.__ref_type, out_cds,))])
+            res.append([fn, pool.apply_async(self.__bam2cds, (bam_file, self.__ref_file, self.__ref_type, out_cds,))])
         pool.close()
         pool.join()
 

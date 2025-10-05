@@ -47,9 +47,9 @@ class BAM2CDS:
         '''
 
         if ref_type == 'cds':
-            match_db = {gid: [{} for _ in range(len(ref_io.fasta_db[gid]))] for gid in ref_io.fasta_db}
+            match_db = {gid: [{"-": 0} for _ in range(len(ref_io.fasta_db[gid]))] for gid in ref_io.fasta_db}
         else:
-            match_db = {gid: [{} for _ in range(ref_io.bed_db[gid][2] - ref_io.bed_db[gid][1])] for gid in
+            match_db = {gid: [{"-": 0} for _ in range(ref_io.bed_db[gid][2] - ref_io.bed_db[gid][1])] for gid in
                         ref_io.bed_db}
 
         '''
@@ -90,6 +90,12 @@ class BAM2CDS:
                         continue
                     for aln_type, base_cnt in line.cigar:
                         for _ in range(base_cnt):
+                            if ref_type == 'cds':
+                                if ref_offset >= len(ref_io.fasta_db[gene_name]):
+                                    break
+                            else:
+                                if ref_offset >= ref_io.bed_db[gene_name][2]:
+                                    break
                             if aln_type in ref_move_set:
                                 # qry_base.append('-')
                                 qry_sub_seq = ''.join(qry_base)
@@ -98,18 +104,15 @@ class BAM2CDS:
                                         match_db[gene_name][last_ref_offset][qry_sub_seq] = 0
                                     match_db[gene_name][last_ref_offset][qry_sub_seq] += 1
                                 else:
-                                    if qry_sub_seq not in match_db[gene_name][last_ref_offset - ref_start]:
-                                        match_db[gene_name][last_ref_offset - ref_start][qry_sub_seq] = 0
-                                    match_db[gene_name][last_ref_offset - ref_start][qry_sub_seq] += 1
+                                    if qry_sub_seq not in match_db[gene_name][last_ref_offset -
+                                                                              ref_io.bed_db[gene_name][1]]:
+                                        match_db[gene_name][last_ref_offset -
+                                                            ref_io.bed_db[gene_name][1]][qry_sub_seq] = 0
+                                    match_db[gene_name][last_ref_offset -
+                                                        ref_io.bed_db[gene_name][1]][qry_sub_seq] += 1
                                 qry_base = []
                                 ref_offset += 1
                                 last_ref_offset = ref_offset
-                                if ref_type == 'cds':
-                                    if ref_offset >= len(ref_io.fasta_db[gene_name]):
-                                        break
-                                else:
-                                    if ref_offset > ref_io.bed_db[gene_name][2]:
-                                        break
                             elif aln_type in qry_move_set:
                                 # if last_ref_offset != 0:
                                 qry_base.append(qry_seq[qry_offset])
@@ -122,9 +125,12 @@ class BAM2CDS:
                                         match_db[gene_name][last_ref_offset][qry_sub_seq] = 0
                                     match_db[gene_name][last_ref_offset][qry_sub_seq] += 1
                                 else:
-                                    if qry_sub_seq not in match_db[gene_name][last_ref_offset - ref_start]:
-                                        match_db[gene_name][last_ref_offset - ref_start][qry_sub_seq] = 0
-                                    match_db[gene_name][last_ref_offset - ref_start][qry_sub_seq] += 1
+                                    if qry_sub_seq not in match_db[gene_name][last_ref_offset -
+                                                                              ref_io.bed_db[gene_name][1]]:
+                                        match_db[gene_name][last_ref_offset -
+                                                            ref_io.bed_db[gene_name][1]][qry_sub_seq] = 0
+                                    match_db[gene_name][last_ref_offset -
+                                                        ref_io.bed_db[gene_name][1]][qry_sub_seq] += 1
                                 qry_base = []
                                 ref_offset += 1
                                 qry_offset += 1
@@ -136,15 +142,13 @@ class BAM2CDS:
                 seq = []
                 for i in range(len(match_db[gene_name])):
                     info = match_db[gene_name][i]
-                    if len(info) == 0:
-                        best_base = ''
-                    elif len(info) == 1:
+                    if len(info) == 1:
                         best_base = sorted(info)[0]
                     else:
                         sorted_info = sorted(info, key=lambda x: info[x], reverse=True)
                         # best_base = sorted(info, key=lambda x: info[x], reverse=True)[0]
                         if info[sorted_info[1]] > 0.5 * info[sorted_info[0]]:
-                            best_base = ''
+                            best_base = '-'
                         else:
                             best_base = sorted_info[0]
                     seq.append(best_base)
@@ -168,7 +172,8 @@ class BAM2CDS:
             sample_id = '.'.join(fn.split('.')[:-1])
             bam_file = path.join(self.__in_bam_dir, fn)
             out_cds = path.join(self.__out_cds_dir, "%s.cds" % sample_id)
-            res.append([fn, pool.apply_async(self.__bam2cds, (bam_file, self.__ref_file, self.__ref_type, out_cds,))])
+            self.__bam2cds(bam_file, self.__ref_file, self.__ref_type, out_cds)
+            # res.append([fn, pool.apply_async(self.__bam2cds, (bam_file, self.__ref_file, self.__ref_type, out_cds,))])
         pool.close()
         pool.join()
 

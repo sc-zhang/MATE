@@ -1,3 +1,16 @@
+from mate.base.cds_check import CDS_Check, CDS_Type
+
+
+class SeqOpt:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def reverse_seq(seq):
+        base_db = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+        return ''.join([base_db[_] if _ in base_db else _ for _ in seq[::-1]])
+
+
 class FastaIO:
     def __init__(self, fasta_file):
         self.__fasta_file = fasta_file
@@ -262,7 +275,7 @@ class BedIO:
             for line in fin:
                 data = line.strip().split()
                 chrn = data[0]
-                sp = int(data[1])-1
+                sp = int(data[1]) - 1
                 ep = int(data[2])
                 gn = data[3]
                 direct = data[4]
@@ -279,14 +292,102 @@ class BedIO:
         s = 0
         e = len(self.__regions[chrn]) - 1
         while s <= e:
-            mid = (s+e)//2
+            mid = (s + e) // 2
             if self.__regions[chrn][mid][0] < pos:
-                s = mid+1
+                s = mid + 1
             elif self.__regions[chrn][mid][0] > pos:
-                e = mid-1
+                e = mid - 1
             else:
                 return self.__regions[chrn][mid][2]
         if self.__regions[chrn][e][0] <= pos < self.__regions[chrn][e][1]:
             return self.__regions[chrn][e][2]
         else:
             return ""
+
+
+class Gff3IO:
+    def __init__(self, gff3_file):
+        self.__gff3_file = gff3_file
+        self.gene_region_db = {}
+        self.chr_gene_db = {}
+        self.__cds_db = {}
+
+    def read_gff3(self):
+        with open(self.__gff3_file, 'r') as fin:
+            for line in fin:
+                if line.strip() == '' or line[0] == '#':
+                    continue
+                data = line.strip().split()
+                if data[2] == 'gene':
+                    gid = ""
+                    gname = ""
+                    for info in data[8].split(';'):
+                        if info.startswith("ID"):
+                            gid = info.split('=')[1]
+                        if info.startswith("Name"):
+                            gname = info.split('=')[1]
+                    if gname != "":
+                        gid = gname
+                    chrn = data[0]
+                    if gid not in self.gene_region_db:
+                        self.gene_region_db[gid] = {'chrn': chrn, 'rna': [], 'best_score': 0, 'direct': "", 'cds': []}
+
+                elif data[2] == 'mRNA':
+                    score = 1
+                    for info in data[8].split(';'):
+                        if info.startswith('cov') or info.startswith('iden'):
+                            score *= float(info.split('=')[1])
+                    if score > self.gene_region_db[gid]['best_score']:
+                        self.gene_region_db[gid]['chrn'] = data[0]
+                        self.gene_region_db[gid]['best_score'] = score
+                        self.gene_region_db[gid]['rna'] = [int(data[3]), int(data[4])]
+                        self.gene_region_db[gid]['direct'] = data[6]
+                        self.gene_region_db[gid]['cds'] = []
+                elif data[2] == 'CDS':
+                    if score == self.gene_region_db[gid]['best_score']:
+                        self.gene_region_db[gid]['cds'].append([int(data[3]), int(data[4])])
+        for gid in self.gene_region_db:
+            chrn = self.gene_region_db[gid]['chrn']
+            if chrn not in self.chr_gene_db:
+                self.chr_gene_db[chrn] = []
+            for idx in range(len(self.gene_region_db[gid]['cds'])):
+                sp, ep = self.gene_region_db[gid]['cds'][idx]
+                self.chr_gene_db[chrn].append([sp - 1, ep, gid, self.gene_region_db[gid]['direct'], idx])
+
+    def get_match_gene_and_cds_idx(self, chrn, pos):
+        if chrn not in self.chr_gene_db:
+            return "", -1
+        s = 0
+        e = len(self.chr_gene_db[chrn]) - 1
+        while s <= e:
+            mid = (s + e) // 2
+            if self.chr_gene_db[chrn][mid][0] < pos:
+                s = mid + 1
+            elif self.chr_gene_db[chrn][mid][0] > pos:
+                e = mid - 1
+            else:
+                return self.chr_gene_db[chrn][mid][2], mid
+        if self.chr_gene_db[chrn][e][0] <= pos < self.chr_gene_db[chrn][e][1]:
+            return self.chr_gene_db[chrn][e][2], e
+        else:
+            return "", -1
+
+    def extract_cds(self, fasta_db):
+        for gid in sorted(self.gene_region_db):
+            chrn = self.gene_region_db[gid]['chrn']
+            if self.gene_region_db[gid]['direct'] == '+':
+                cds = []
+                for sp, ep in self.gene_region_db[gid]['cds']:
+                    cds.append(fasta_db[chrn][sp - 1: ep])
+            else:
+                cds = []
+                for sp, ep in self.gene_region_db[gid]['cds']:
+                    cds.append(SeqOpt.reverse_seq(fasta_db[chrn][sp - 1: ep]))
+            cds = ''.join(cds)
+            if CDS_Check.check_cds(cds.upper()) == CDS_Type.VALID:
+                self.__cds_db[gid] = cds
+
+    def write_cds(self, cds_file):
+        with open(cds_file, 'w') as fout:
+            for gid in sorted(self.__cds_db):
+                fout.write(">%s\n%s\n" % (gid, self.__cds_db[gid]))

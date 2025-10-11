@@ -14,10 +14,8 @@ def get_opts():
     mut_ref_group = groups.add_mutually_exclusive_group(required=True)
     mut_ref_group.add_argument('--cds', help="Reference cds file of candidate genes, can be set with "
                                              "-g/--genome and -b/--bam")
-    mut_ref_group.add_argument('--bed', help="Reference bed file of candidate genes, only effect with "
-                                             "-b/--bam, tab separated, should contain 4 columns, "
-                                             "[ChrID\tStart\tEnd\tGeneID\tDirection]")
-
+    mut_ref_group.add_argument('--gff3', help="Reference gff3 file of candidate genes, only effect with "
+                                              "-b/--bam, should only keep records with candidate genes")
     groups.add_argument('-l', '--ploidy', help="Ploidy of genomes, only effect with -g, default=1",
                         type=int, default=1)
     groups.add_argument('-p', '--pheno', help="Directory contain phenotypes for association, if the "

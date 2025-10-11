@@ -19,7 +19,7 @@ def pipeline(args):
     start_time = time()
 
     ref_cds = ""
-    ref_bed = ""
+    ref_gff3 = ""
     if args.genome:
         genome_dir = path.abspath(args.genome)
         if not args.cds:
@@ -30,11 +30,11 @@ def pipeline(args):
         genome_dir = ""
     if args.bam:
         bam_dir = path.abspath(args.bam)
-        if (not args.bed) and (not args.cds):
+        if (not args.gff3) and (not args.cds):
             Msg.error("Fatal error: --bed or --cds must be set when using bam mode")
             exit(-1)
-        if args.bed:
-            ref_bed = path.abspath(args.bed)
+        if args.gff3:
+            ref_gff3 = path.abspath(args.gff3)
         if args.cds:
             ref_cds = path.abspath(args.cds)
     else:
@@ -123,7 +123,7 @@ def pipeline(args):
             if ref_cds:
                 bam_convertor = BAM2CDS(bam_dir, ref_cds, extract_cds_dir, "cds", thread)
             else:
-                bam_convertor = BAM2CDS(bam_dir, ref_bed, extract_cds_dir, "bed", thread)
+                bam_convertor = BAM2CDS(bam_dir, ref_gff3, extract_cds_dir, "gff3", thread)
             bam_convertor.convert()
 
     Msg.info("Step%d: Converting cds" % cur_stage)

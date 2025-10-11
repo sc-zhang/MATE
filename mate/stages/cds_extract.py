@@ -1,8 +1,7 @@
 from os import path, listdir
-from mate.io.file_operate import FastaIO
+from mate.io.file_operate import FastaIO, Gff3IO
 from mate.io.message import Message as Msg
 from pathos.multiprocessing import Pool
-from mate.base.cds_check import CDS_Check, CDS_Type
 
 
 class CDSExtract:
@@ -13,60 +12,16 @@ class CDSExtract:
         self.__thread = thread
 
     @staticmethod
-    def __reverse_seq(seq):
-        base_db = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-        return ''.join([base_db[_] if _ in base_db else _ for _ in seq[::-1]])
-
-    def __extract_cds(self, in_gff3, in_fa, out_cds_file):
+    def __extract_cds(in_gff3, in_fa, out_cds_file):
         Msg.info("\tLoading genome %s" % in_fa)
         fasta_io = FastaIO(in_fa)
         fasta_io.read_fasta()
 
         Msg.info("\tExtracting cds")
-        with open(in_gff3, 'r') as fin:
-            with open(out_cds_file, 'w') as fout:
-                region_db = {}
-                for line in fin:
-                    if line.strip() == '' or line[0] == '#':
-                        continue
-                    data = line.strip().split()
-                    if data[2] == 'gene':
-                        for info in data[8].split(';'):
-                            if info.startswith("Name"):
-                                gid = info.split('=')[1]
-                        chrn = data[0]
-                        if gid not in region_db:
-                            region_db[gid] = {'chrn': chrn, 'rna': [], 'best_score': 0, 'direct': "", 'cds': []}
-
-                    elif data[2] == 'mRNA':
-                        score = 1
-                        for info in data[8].split(';'):
-                            if info.startswith('cov') or info.startswith('iden'):
-                                score *= float(info.split('=')[1])
-                        if score > region_db[gid]['best_score']:
-                            region_db[gid]['chrn'] = data[0]
-                            region_db[gid]['best_score'] = score
-                            region_db[gid]['rna'] = [int(data[3]), int(data[4])]
-                            region_db[gid]['direct'] = data[6]
-                            region_db[gid]['cds'] = []
-                    elif data[2] == 'CDS':
-                        if score == region_db[gid]['best_score']:
-                            region_db[gid]['cds'].append([int(data[3]), int(data[4])])
-
-                for gid in sorted(region_db):
-                    chrn = region_db[gid]['chrn']
-                    if region_db[gid]['direct'] == '+':
-                        cds = ""
-                        for sp, ep in region_db[gid]['cds']:
-                            cds += fasta_io.fasta_db[chrn][sp - 1: ep]
-                        if CDS_Check.check_cds(cds.upper()) == CDS_Type.VALID:
-                            fout.write('>%s\n%s\n' % (gid, cds))
-                    else:
-                        cds = ""
-                        for sp, ep in region_db[gid]['cds']:
-                            cds += self.__reverse_seq(fasta_io.fasta_db[chrn][sp - 1: ep])
-                        if CDS_Check.check_cds(cds.upper()) == CDS_Type.VALID:
-                            fout.write('>%s\n%s\n' % (gid, cds))
+        gff3_io = Gff3IO(in_gff3)
+        gff3_io.read_gff3()
+        gff3_io.extract_cds(fasta_io.fasta_db)
+        gff3_io.write_cds(out_cds_file)
 
         Msg.info("\tCDS extracted")
 

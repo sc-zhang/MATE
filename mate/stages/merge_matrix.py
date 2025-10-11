@@ -11,7 +11,7 @@ def __get_sig_vars(seq, gene_var_sites_db):
     for i in range(len(gene_var_sites_db['pos'])):
         pos_start = gene_var_sites_db['pos'][i]
         var_len = len(gene_var_sites_db['ref'][i])
-        for j in range(pos_start, pos_start+var_len):
+        for j in range(pos_start, pos_start + var_len):
             sig_vars[j] = seq[j]
     return ''.join(sig_vars)
 
@@ -161,7 +161,7 @@ def merge_variant_matrix(pheno_dir, cleanup_aln_dir, asc_dir, merge_cleanup_dir,
         merge_sig_file = path.join(merge_sig_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.mat')
         res.append([pheno_fn, pool.apply_async(__merge_with_single_pheno,
                                                (pheno_file, cleanup_aln_dir, asc_file,
-                                                merge_cleanup_file, merge_sig_file, filters, ))])
+                                                merge_cleanup_file, merge_sig_file, filters,))])
     pool.close()
     pool.join()
 

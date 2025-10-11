@@ -7,7 +7,6 @@ from outliers import smirnov_grubbs as grubbs
 from numpy import array, average, std
 import warnings
 
-
 warnings.filterwarnings("error")
 
 
@@ -116,7 +115,7 @@ def associate_with_pheno(pheno_dir, cla_dir, asc_dir, thread):
         pheno_file = path.join(pheno_dir, pheno_fn)
         asc_file = path.join(asc_dir, '.'.join(pheno_fn.split('.')[:-1]) + '.asc')
         res.append([pheno_fn, pool.apply_async(__associate_with_single_pheno,
-                                               (pheno_file, cla_dir, asc_file, is_lower_better, ))])
+                                               (pheno_file, cla_dir, asc_file, is_lower_better,))])
     pool.close()
     pool.join()
 

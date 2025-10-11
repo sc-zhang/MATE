@@ -47,7 +47,7 @@ def convert_cds_files_for_mafft(cds_dir, split_dir):
 
     Msg.info("Writing split fasta files")
     for gid in cds_db:
-        split_fn = path.join(split_dir, gid+'.fa')
+        split_fn = path.join(split_dir, gid + '.fa')
         Msg.info("\tWriting %s" % gid)
         with open(split_fn, 'w') as fout:
             for sample_id in cds_db[gid]:

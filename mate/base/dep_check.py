@@ -8,7 +8,7 @@ class DepCheck:
     @staticmethod
     def check(cmd):
         p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True, encoding='utf-8')
-        res, _= p.communicate()
+        res, _ = p.communicate()
 
         if res:
             return True

@@ -26,7 +26,7 @@ def __variant_classifier_for_single_file(var_file, classified_file):
             last_pos_range[1] = last_pos
             continue
         cur_pos, cur_ref, cur_alt, cur_genotype = var_io.variants[_]
-        if cur_genotype == last_genotype and cur_pos == last_pos_range[1]+1:
+        if cur_genotype == last_genotype and cur_pos == last_pos_range[1] + 1:
             last_ref += cur_ref
             for _ in last_alt:
                 alt = last_alt[_] + cur_alt[_]
@@ -55,7 +55,7 @@ def variant_classifier(var_dir, cla_dir, thread):
         Msg.info("\tClassifying %s" % fn)
         var_file = path.join(var_dir, fn)
         cla_file = path.join(cla_dir, fn.replace('.var', '.cla'))
-        res.append([fn, pool.apply_async(__variant_classifier_for_single_file, (var_file, cla_file, ))])
+        res.append([fn, pool.apply_async(__variant_classifier_for_single_file, (var_file, cla_file,))])
     pool.close()
     pool.join()
 

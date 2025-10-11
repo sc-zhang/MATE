@@ -17,7 +17,7 @@ def mafft_alignment(fasta_file_dir_for_mafft, aln_dir, thread):
     runner = Runner()
     for fn in listdir(fasta_file_dir_for_mafft):
         in_fa = path.join(fasta_file_dir_for_mafft, fn)
-        out_aln = path.join(aln_dir, '.'.join(fn.split('.')[:-1])+'.aln')
+        out_aln = path.join(aln_dir, '.'.join(fn.split('.')[:-1]) + '.aln')
         Msg.info("\tmafft %s" % fn)
         runner.set_cmd("mafft --adjustdirection --thread %d %s > %s" % (thread, in_fa, out_aln))
         runner.run()

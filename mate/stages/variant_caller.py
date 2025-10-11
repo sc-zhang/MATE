@@ -28,10 +28,10 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
 
     # remove base if more than lower_threshold ratio of samples with lower supported kmer at this position
     remove_pos = set()
-    for i in range(seq_len-kmer_length+1):
+    for i in range(seq_len - kmer_length + 1):
         cnt_db = {}
         for smp in fasta_io.fasta_db:
-            kmer = fasta_io.fasta_db[smp][i: i+kmer_length]
+            kmer = fasta_io.fasta_db[smp][i: i + kmer_length]
             if kmer not in cnt_db:
                 cnt_db[kmer] = 0
             cnt_db[kmer] += 1
@@ -83,7 +83,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
             cur_type = 0
             if base != ref:
                 if base not in alt:
-                    alt[base] = len(alt)+1
+                    alt[base] = len(alt) + 1
                 cur_type = alt[base]
             info.append(cur_type)
         if alt:

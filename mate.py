@@ -9,7 +9,7 @@ def get_opts():
     mut_input_group = groups.add_mutually_exclusive_group(required=True)
     mut_input_group.add_argument('-g', '--genome', help="Directory contain all genomes")
     mut_input_group.add_argument('-b', '--bam', help="Directory contain all bam files by mapping "
-                                                     "Reseq reads to reference cds")
+                                                     "Resequencing reads to reference cds")
     # groups.add_argument('-g', '--genome', help="Directory contain all genomes", required=True)
     mut_ref_group = groups.add_mutually_exclusive_group(required=True)
     mut_ref_group.add_argument('--cds', help="Reference cds file of candidate genes, can be set with "

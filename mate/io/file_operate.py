@@ -167,7 +167,13 @@ class PhenoIO:
         with open(self.__pheno_file, 'r') as fin:
             for line in fin:
                 data = line.strip().split()
-                self.pheno_db[data[0]] = float(data[1])
+                # skip annotation lines and table header
+                if len(data) < 2:
+                    continue
+                try:
+                    self.pheno_db[data[0]] = float(data[1])
+                except ValueError:
+                    continue
 
 
 class AssociateIO:

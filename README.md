@@ -32,32 +32,28 @@ source ~/.bash_profile
 ## Usage
 
 ```bash                                                                                                                                                                                                                                                                                             ─╯
-usage: mate.py [-h] (-g GENOME | -b BAM) (--cds CDS | --gff3 GFF3) [-l PLOIDY] -p PHENO [--variant_filter VARIANT_FILTER] [--allele_filter ALLELE_FILTER] -o OUTPUT [-s] [--format FORMAT] [-t THREAD]
+usage: mate.py [-h] (-g GENOME | -b BAM) (--cds CDS | --gff3 GFF3) [-l PLOIDY] -p PHENO [--variant_filter VARIANT_FILTER] [--allele_filter ALLELE_FILTER] -o OUTPUT [-s] [--format FORMAT] [-t THREAD] [-v]
 
 options:
   -h, --help            show this help message and exit
-  -g GENOME, --genome GENOME
-                        Directory contain all genomes
-  -b BAM, --bam BAM     Directory contain all bam files by mapping Reseq reads to reference cds
+  -g, --genome GENOME   Directory contain all genomes
+  -b, --bam BAM         Directory contain all bam files by mapping Resequencing reads to reference cds
   --cds CDS             Reference cds file of candidate genes, can be set with -g/--genome and -b/--bam
   --gff3 GFF3           Reference gff3 file of candidate genes, only effect with -b/--bam, should only keep records with candidate genes
-  -l PLOIDY, --ploidy PLOIDY
-                        Ploidy of genomes, only effect with -g, default=1
-  -p PHENO, --pheno PHENO
-                        Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
+  -l, --ploidy PLOIDY   Ploidy of genomes, only effect with -g, default=1
+  -p, --pheno PHENO     Directory contain phenotypes for association, if the filename of phenotype starts with "LOW-", means lower value is better
   --variant_filter VARIANT_FILTER
-                        Threshold string for variant caller, "kmer_length:lower_threshold:missing_threshold", kmer_length means the size of kmer; lower_threshold means if one position contain a kmer with less thanthis ratio of samples
-                        support, drop it; missing_threshold means for one position if more than this ratio of samples are "-" at drop it; default=5:0.05:0.9
+                        Threshold string for variant caller, "kmer_length:lower_threshold:missing_threshold", kmer_length means the size of kmer; lower_threshold means if one position contain a kmer with less thanthis ratio of samples support, drop
+                        it; missing_threshold means for one position if more than this ratio of samples are "-" at drop it; default=5:0.05:0.9
   --allele_filter ALLELE_FILTER
                         Threshold string for final allele construction, "lower_threshold:upper_threshold:missing_threshold:min_allele", lower_threshold means if one allele with less than this ratio of samples supported, it would be dropped;
                         upper_threshold means if one allele with more than this ratio of samples supported, it would be dropped; missing_threshold means if one gene with more than this ratio of samples marked as absence, it would be dropped;
                         min_allele means if one gene with less than this count of alleles (ignore absence), it would be dropped; default=0:1:1:1 (no filter)
-  -o OUTPUT, --output OUTPUT
-                        Output directory
+  -o, --output OUTPUT   Output directory
   -s, --show            The multi-alignment of variants would be stored if this parameter is set
   --format FORMAT       The picture format of multi-alignment, only effect when parameter 'show' is setting, default=pdf
-  -t THREAD, --thread THREAD
-                        Thread number, default=10
+  -t, --thread THREAD   Thread number, default=10
+  -v, --version         show program's version number and exit
 ```
 
 **Notice** the id of genes in reference cds file must not contain invalid characters that cannot use in path, like '/',

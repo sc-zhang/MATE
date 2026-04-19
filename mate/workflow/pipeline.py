@@ -178,7 +178,8 @@ def pipeline(args):
     if is_finished:
         Msg.info("Variant results found, skipping...")
     else:
-        variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, variant_filter, thread)
+        variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, variant_filter,
+                       thread, filter_gap=True if genome_dir else False)
 
     Msg.info("Step%d: Variant classifying" % cur_stage)
     out_cla_dir = path.join(getcwd(), "%02d.ClassifiedVariants" % cur_stage)

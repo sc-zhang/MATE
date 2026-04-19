@@ -3,9 +3,59 @@ from mate.io.message import Message as Msg
 from mate.base.consensus_seq import get_consensus_seq
 from pathos.multiprocessing import Pool
 from os import listdir, path
+import math
 
 
-def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, variant_filter):
+def __auto_filter_aln(aln_db, consensus_seq, filter_gap=True, filter_div=False):
+    aln_len = len(consensus_seq)
+    if aln_len == 0:
+        return []
+
+    gap_ratios = []
+    divergences = []
+    stat_db = {}
+    for sid, seq in aln_db.items():
+        gap_ratio = seq.count('-') * 1. / aln_len
+
+        mismatch_cnt = 0
+        valid_sites = 0
+        for ref_base, qry_base in zip(consensus_seq, seq):
+            if ref_base != '-' and qry_base != '-':
+                valid_sites += 1
+                if ref_base.upper() != qry_base.upper():
+                    mismatch_cnt += 1
+        div = mismatch_cnt * 1. / valid_sites if valid_sites > 0 else 1.0
+        gap_ratios.append(gap_ratio)
+        divergences.append(div)
+        stat_db[sid] = [gap_ratio, div]
+
+    def get_percentile(data, p):
+        if not data:
+            return 0.0
+        sorted_data = sorted(data)
+        idx = (p / 100.) * (len(sorted_data) - 1)
+        lower = int(math.floor(idx))
+        upper = int(math.ceil(idx))
+        weight = idx - lower
+        return sorted_data[lower] * (1 - weight) + sorted_data[upper] * weight
+
+    base_gap = get_percentile(gap_ratios, 95)
+    base_div = get_percentile(divergences, 95)
+    cutoff_gap = max(0.03, min(base_gap, 0.10))
+    cutoff_div = max(0.005, min(base_div, 0.05))
+
+    retain_samples = []
+
+    for sid, stat in stat_db.items():
+        if filter_gap and stat[0] > cutoff_gap:
+            continue
+        if filter_div and stat[1] > cutoff_div:
+            continue
+        retain_samples.append(sid)
+    return set(retain_samples), cutoff_gap, cutoff_div
+
+
+def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, variant_filter, filter_gap=True):
     Msg.info("\tLoading %s" % aln_file)
     fasta_io = FastaIO(aln_file)
     fasta_io.read_aln()
@@ -16,10 +66,9 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
 
     Msg.info("\tDropping low quality sequences")
 
-    # drop samples with low support kmers
-    support_db = {}
-    for smp in fasta_io.fasta_db:
-        support_db[smp] = []
+    # drop samples with too many gaps or high divergence
+    retain_samples, cutoff_gap, cutoff_div = __auto_filter_aln(fasta_io.fasta_db, consensus_seq, filter_gap)
+    Msg.info("\tCutoff, gap: %.4f, div: %.4f" % (cutoff_gap, cutoff_div))
 
     seq_cnt = len(fasta_io.fasta_db)
     kmer_length, lower_threshold, missing_threshold = variant_filter.split(':')
@@ -30,7 +79,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     remove_pos = set()
     for i in range(seq_len - kmer_length + 1):
         cnt_db = {}
-        for smp in fasta_io.fasta_db:
+        for smp in retain_samples:
             kmer = fasta_io.fasta_db[smp][i: i + kmer_length]
             if kmer not in cnt_db:
                 cnt_db[kmer] = 0
@@ -50,7 +99,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     missing_threshold = float(missing_threshold) * seq_cnt
     for pos in range(seq_len):
         cnt = 0
-        for smp in fasta_io.fasta_db:
+        for smp in retain_samples:
             if fasta_io.fasta_db[smp][pos] == '-':
                 cnt += 1
         if cnt >= missing_threshold:
@@ -58,7 +107,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
 
     cleanup_aln_db = {}
     aln_db = {}
-    for smp in fasta_io.fasta_db:
+    for smp in retain_samples:
         cleanup_aln_db[smp] = []
         for pos in range(seq_len):
             if pos not in remove_pos:
@@ -98,18 +147,20 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     Msg.info("\tFinished")
 
 
-def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread):
+def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread, filter_gap=True):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
 
     res = []
     for fn in listdir(aln_dir):
+        if not fn.endswith(".aln"):
+            continue
         Msg.info("\tCalling %s" % fn)
         aln_file = path.join(aln_dir, fn)
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
         res.append([fn, pool.apply_async(__variant_caller_for_single_file,
-                                         (aln_file, var_file, cleanup_aln_file, variant_filter,))])
+                                         (aln_file, var_file, cleanup_aln_file, variant_filter, filter_gap,))])
     pool.close()
     pool.join()
 

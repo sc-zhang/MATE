@@ -1,5 +1,58 @@
 from mate.base.cds_check import CDS_Check, CDS_Type
 
+class Converter:
+    STANDARD_CODON_TABLE = {
+        'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M',
+        'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T',
+        'AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K',
+        'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R',
+        'CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L',
+        'CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P',
+        'CAC':'H', 'CAT':'H', 'CAA':'Q', 'CAG':'Q',
+        'CGA':'R', 'CGC':'R', 'CGG':'R', 'CGT':'R',
+        'GTA':'V', 'GTC':'V', 'GTG':'V', 'GTT':'V',
+        'GCA':'A', 'GCC':'A', 'GCG':'A', 'GCT':'A',
+        'GAC':'D', 'GAT':'D', 'GAA':'E', 'GAG':'E',
+        'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G',
+        'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S',
+        'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L',
+        'TAC':'Y', 'TAT':'Y', 'TAA':'*', 'TAG':'*',
+        'TGC':'C', 'TGT':'C', 'TGA':'*', 'TGG':'W',
+    }
+
+    def translate_cds_to_pep(self, cds_seq):
+        pep_list = []
+        for i in range(0, len(cds_seq), 3):
+            codon = cds_seq[i: i+3].upper()
+            amino = self.STANDARD_CODON_TABLE.get(codon, "X")
+            pep_list.append(amino)
+        return "".join(pep_list)
+
+    @staticmethod
+    def restore_pep_aln_to_cds_aln(in_pep_aln, in_cds_file, out_cds_aln):
+        pep_io = FastaIO(in_pep_aln)
+        pep_io.read_aln()
+        cds_io = FastaIO(in_cds_file)
+        cds_io.read_fasta()
+
+        with open(out_cds_aln, 'w') as fout:
+            for sid in pep_io.fasta_db:
+                if sid.endswith("_R_"):
+                    ori_cds = pep_io.fasta_db[sid.rstrip("_R_")]
+                    ori_cds = SeqOpt.reverse_seq(ori_cds)
+                else:
+                    ori_cds = cds_io.fasta_db[sid]
+                cds_idx = 0
+                cds_aln = []
+                for c in pep_io.fasta_db[sid]:
+                    if c == '-':
+                        cds_aln.append("---")
+                    else:
+                        codon = ori_cds[cds_idx: cds_idx+3]
+                        cds_aln.append(codon)
+                        cds_idx += 3
+                fout.write(">%s\n%s\n"%(sid.rstrip("_R_"), "".join(cds_aln)))
+
 
 class SeqOpt:
     def __init__(self):

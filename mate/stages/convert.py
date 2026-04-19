@@ -1,6 +1,6 @@
 from os import path, listdir
 from mate.io.message import Message as Msg
-from mate.io.file_operate import FastaIO
+from mate.io.file_operate import FastaIO, Converter
 
 
 # for running mafft, we need collect all cds with same id in different cds file to one file,
@@ -46,10 +46,15 @@ def convert_cds_files_for_mafft(cds_dir, split_dir):
     Msg.info("Loading finished")
 
     Msg.info("Writing split fasta files")
+    converter = Converter()
     for gid in cds_db:
-        split_fn = path.join(split_dir, gid + '.fa')
+        split_cds_fn = path.join(split_dir, gid + '.cds')
         Msg.info("\tWriting %s" % gid)
-        with open(split_fn, 'w') as fout:
+        with open(split_cds_fn, 'w') as fout:
             for sample_id in cds_db[gid]:
                 fout.write(">%s\n%s\n" % (sample_id, cds_db[gid][sample_id]))
+        split_pep_fn = path.join(split_dir, gid+".pep")
+        with open(split_pep_fn, 'w') as fout:
+            for sample_id in cds_db[gid]:
+                fout.write(">%s\n%s\n"%(sample_id, converter.translate_cds_to_pep(cds_db[gid][sample_id])))
     Msg.info("Writing Finished")

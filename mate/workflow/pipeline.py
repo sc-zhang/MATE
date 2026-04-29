@@ -43,6 +43,7 @@ def pipeline(args):
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
     pheno_dir = path.abspath(args.pheno)
+    is_cds_align = args.cds_align
     variant_filter = args.variant_filter
     allele_filter = args.allele_filter
     thread = args.thread
@@ -154,7 +155,7 @@ def pipeline(args):
     if is_finished:
         Msg.info("MAFFT results found, skipping...")
     else:
-        mafft_alignment(converted_cds_dir, out_mafft_dir, thread)
+        mafft_alignment(converted_cds_dir, out_mafft_dir, is_cds_align, thread)
 
     Msg.info("Step%d: Variant calling" % cur_stage)
     out_aln_dir = path.join(getcwd(), "%02d.Variants" % cur_stage, "01.CleanupAlign")

@@ -1,9 +1,12 @@
 from os import path, makedirs, getcwd, listdir, chdir
+from shutil import copytree
 from mate.io.message import Message as Msg
 from mate.stages import *
 from mate.visualization.draw_variants import draw_variant_sites_in_association
 from mate.visualization.draw_alleles import draw_alleles
 from time import time
+
+SUPPORTED_COMB = {("genome", "cds"), ("bam", "cds"), ("bam", "gff3"), ("cds", "cds"), ("cds", "gff3")}
 
 
 def get_sample_set(in_dir, filetype="genome"):
@@ -18,27 +21,15 @@ def get_sample_set(in_dir, filetype="genome"):
 def pipeline(args):
     start_time = time()
 
-    ref_cds = ""
-    ref_gff3 = ""
-    if args.genome:
-        genome_dir = path.abspath(args.genome)
-        if not args.cds:
-            Msg.error("Fatal error: --cds must be set when using genome mode")
-            exit(-1)
-        ref_cds = path.abspath(args.cds)
-    else:
-        genome_dir = ""
-    if args.bam:
-        bam_dir = path.abspath(args.bam)
-        if (not args.gff3) and (not args.cds):
-            Msg.error("Fatal error: --bed or --cds must be set when using bam mode")
-            exit(-1)
-        if args.gff3:
-            ref_gff3 = path.abspath(args.gff3)
-        if args.cds:
-            ref_cds = path.abspath(args.cds)
-    else:
-        bam_dir = ""
+    query_dir = path.abspath(args.query)
+    query_type = args.query_type
+
+    ref_file = path.abspath(args.reference)
+    ref_type = args.ref_type
+
+    if query_type == "genome" and ref_type != "cds":
+        Msg.error("Genome can only be used with cds")
+        exit(-1)
 
     out_dir = path.abspath(args.output)
     ploidy = args.ploidy
@@ -57,8 +48,8 @@ def pipeline(args):
     chdir(out_dir)
 
     cur_stage = 1
-    if genome_dir:
-        sample_set = get_sample_set(genome_dir)
+    if query_type == "genome":
+        sample_set = get_sample_set(query_dir)
         Msg.info("Step%d: GMAP" % cur_stage)
         gmap_out_gff3_dir = path.join(getcwd(), "%02d.GMAP" % cur_stage)
         cur_stage += 1
@@ -79,7 +70,7 @@ def pipeline(args):
         if is_finished:
             Msg.info("Gmap results are found, skipping...")
         else:
-            mapping(ref_cds, genome_dir, gmap_out_gff3_dir, ploidy, thread)
+            mapping(ref_file, query_dir, gmap_out_gff3_dir, ploidy, thread)
 
         Msg.info("Step%d: Extracting CDS" % cur_stage)
         extract_cds_dir = path.join(getcwd(), "%02d.CDS" % cur_stage)
@@ -99,10 +90,10 @@ def pipeline(args):
         if is_finished:
             Msg.info("CDS are extracted, skipping...")
         else:
-            cds_extractor = CDSExtract(gmap_out_gff3_dir, genome_dir, extract_cds_dir, thread)
+            cds_extractor = CDSExtract(gmap_out_gff3_dir, query_dir, extract_cds_dir, thread)
             cds_extractor.extract()
-    else:
-        sample_set = get_sample_set(bam_dir, filetype="bam")
+    elif query_type == "bam":
+        sample_set = get_sample_set(query_dir, filetype="bam")
         Msg.info("Step%d: Converting Bam to CDS" % cur_stage)
         extract_cds_dir = path.join(getcwd(), "%02d.CDS" % cur_stage)
         cur_stage += 1
@@ -121,11 +112,16 @@ def pipeline(args):
         if is_finished:
             Msg.info("CDS are extracted, skipping...")
         else:
-            if ref_cds:
-                bam_convertor = BAM2CDS(bam_dir, ref_cds, extract_cds_dir, "cds", thread)
-            else:
-                bam_convertor = BAM2CDS(bam_dir, ref_gff3, extract_cds_dir, "gff3", thread)
+            bam_convertor = BAM2CDS(query_dir, ref_file, extract_cds_dir, ref_type, thread)
             bam_convertor.convert()
+    else:
+        Msg.info("Step%d: Copying CDS to work directory" % cur_stage)
+        extract_cds_dir = path.join(getcwd(), "%02d.CDS" % cur_stage)
+        cur_stage += 1
+        if not path.exists(extract_cds_dir):
+            copytree(query_dir, extract_cds_dir)
+        else:
+            Msg.info("CDS are copied, skipping...")
 
     Msg.info("Step%d: Converting cds" % cur_stage)
     converted_cds_dir = path.join(getcwd(), "%02d.Convert" % cur_stage)
@@ -180,7 +176,7 @@ def pipeline(args):
         Msg.info("Variant results found, skipping...")
     else:
         variant_caller(out_mafft_dir, out_var_dir, out_aln_dir, variant_filter,
-                       thread, filter_gap=True if genome_dir else False)
+                       thread)
 
     Msg.info("Step%d: Variant classifying" % cur_stage)
     out_cla_dir = path.join(getcwd(), "%02d.ClassifiedVariants" % cur_stage)

@@ -6,7 +6,7 @@ from os import listdir, path
 import math
 
 
-def __auto_filter_aln(aln_db, consensus_seq, filter_gap=True, filter_div=False):
+def __auto_filter_aln(aln_db, consensus_seq, filter_gap=False, filter_div=False):
     aln_len = len(consensus_seq)
     if aln_len == 0:
         return []
@@ -55,7 +55,7 @@ def __auto_filter_aln(aln_db, consensus_seq, filter_gap=True, filter_div=False):
     return set(retain_samples), cutoff_gap, cutoff_div
 
 
-def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, variant_filter, filter_gap=True):
+def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, variant_filter):
     Msg.info("\tLoading %s" % aln_file)
     fasta_io = FastaIO(aln_file)
     fasta_io.read_aln()
@@ -67,7 +67,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     Msg.info("\tDropping low quality sequences")
 
     # drop samples with too many gaps or high divergence
-    retain_samples, cutoff_gap, cutoff_div = __auto_filter_aln(fasta_io.fasta_db, consensus_seq, filter_gap)
+    retain_samples, cutoff_gap, cutoff_div = __auto_filter_aln(fasta_io.fasta_db, consensus_seq)
     Msg.info("\tCutoff, gap: %.4f, div: %.4f" % (cutoff_gap, cutoff_div))
 
     seq_cnt = len(fasta_io.fasta_db)
@@ -147,7 +147,7 @@ def __variant_caller_for_single_file(aln_file, var_file, cleanup_aln_file, varia
     Msg.info("\tFinished")
 
 
-def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread, filter_gap=True):
+def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread):
     pool = Pool(processes=thread)
     Msg.info("Variant calling")
 
@@ -160,7 +160,7 @@ def variant_caller(aln_dir, var_dir, cleanup_aln_dir, variant_filter, thread, fi
         var_file = path.join(var_dir, fn.replace('.aln', '.var'))
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
         res.append([fn, pool.apply_async(__variant_caller_for_single_file,
-                                         (aln_file, var_file, cleanup_aln_file, variant_filter, filter_gap,))])
+                                         (aln_file, var_file, cleanup_aln_file, variant_filter,))])
     pool.close()
     pool.join()
 

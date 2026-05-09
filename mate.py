@@ -7,26 +7,19 @@ from mate.__version__ import __version__
 def get_opts():
     groups = argparse.ArgumentParser()
 
-    mut_input_group = groups.add_mutually_exclusive_group(required=True)
-    mut_input_group.add_argument("-g", "--genome", help="Directory contain all genomes")
-    mut_input_group.add_argument(
-        "-b",
-        "--bam",
-        help="Directory contain all bam files by mapping "
-             "Resequencing reads to reference cds",
+    groups.add_argument(
+        "-q", "--query", help="Directory contain all query files", required=True
     )
-    # groups.add_argument('-g', '--genome', help="Directory contain all genomes", required=True)
-    mut_ref_group = groups.add_mutually_exclusive_group(required=True)
-    mut_ref_group.add_argument(
-        "--cds",
-        help="Reference cds file of candidate genes, can be set with "
-             "-g/--genome and -b/--bam",
-    )
-    mut_ref_group.add_argument(
-        "--gff3",
-        help="Reference gff3 file of candidate genes, only effect with "
-             "-b/--bam, should only keep records with candidate genes",
-    )
+    groups.add_argument("--query_type", help="Type of query file, could be genome/bam/cds, "
+                                             "default=genome",
+                        choices=["genome", "bam", "cds"], default="genome")
+    groups.add_argument("-r", "--reference",
+                        help="Reference file of candidate genes",
+                        required=True)
+    groups.add_argument("--ref_type",
+                        help="Type of reference file, could be cds/gff3, when query_type is genome, "
+                             "it only could be set to cds, default=cds",
+                        choices=["cds", "gff3"], default="cds")
     groups.add_argument(
         "-l",
         "--ploidy",
@@ -42,7 +35,8 @@ def get_opts():
         required=True,
     )
     groups.add_argument("--cds_align",
-                        help="If set this parameter, the multi sequences alignment would be applied on cds, otherwise it would be converted to pep first",
+                        help="If set this parameter, the multi sequences alignment would be applied on cds, "
+                             "otherwise it would be converted to pep first",
                         action="store_true")
     groups.add_argument(
         "--variant_filter",

@@ -55,6 +55,9 @@ def __merge_with_single_pheno(
     upper_threshold = smp_cnt * upper_filter
     missing_threshold = smp_cnt * missing_filter
 
+    sig_allele_idx = 0
+    sig_positions = []
+
     for fn in listdir(cleanup_aln_dir):
         cleanup_aln_file = path.join(cleanup_aln_dir, fn)
         gid = ".".join(fn.split(".")[:-1])

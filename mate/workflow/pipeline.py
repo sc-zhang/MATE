@@ -24,11 +24,15 @@ def pipeline(args):
     query_dir = path.abspath(args.query)
     query_type = args.query_type
 
-    ref_file = path.abspath(args.reference)
+    ref_file = path.abspath(args.reference) if args.reference else ""
     ref_type = args.ref_type
 
     if query_type == "genome" and ref_type != "cds":
         Msg.error("Genome can only be used with cds")
+        exit(-1)
+
+    if ref_type != "cds" and not ref_file:
+        Msg.error("Reference must be set if ref_type is not cds")
         exit(-1)
 
     out_dir = path.abspath(args.output)

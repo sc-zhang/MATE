@@ -14,8 +14,7 @@ def get_opts():
                                              "default=genome",
                         choices=["genome", "bam", "cds"], default="genome")
     groups.add_argument("-r", "--reference",
-                        help="Reference file of candidate genes",
-                        required=True)
+                        help="Reference file of candidate genes, required when query_type is genome/bam")
     groups.add_argument("--ref_type",
                         help="Type of reference file, could be cds/gff3, when query_type is genome, "
                              "it only could be set to cds, default=cds",
